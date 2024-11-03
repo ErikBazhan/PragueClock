@@ -7,12 +7,12 @@ from PIL import Image, ImageTk
 
 # Funktion zur Erstellung des Hauptfensters
 def erstelle_fenster():
-    # Hauptfenster erstellen und das Yaru-Theme anwenden
+    # Hauptfenster erstellen mit Yaru-Theme
     root = ThemedTk(theme="yaru")  
-    root.title("Prager Uhr Simulation mit Yaru-Theme")  # Fenstertitel setzen
+    root.title("Prager Uhr Simulation")  # Fenstertitel setzen
     root.geometry("1280x720")  # Fenstergröße setzen
 
-    # Frame für die gesamte Anwendung, um eine Umrandung zu erstellen
+    # Frame für die gesamte Anwendung
     haupt_frame = ttk.Frame(root, padding="10")
     haupt_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
@@ -73,12 +73,12 @@ def erstelle_fenster():
     uhrzeit_label = ttk.Label(uhr_frame, font=("Helvetica", 16))
     uhrzeit_label.grid(row=0, column=0, padx=10, pady=10)
 
-    # Canvas für das analoge Zifferblatt auf 600x600 vergrößern
+    # Canvas für das analoge Zifferblatt (Auflösung 600x600)
     canvas = tk.Canvas(uhr_frame, width=600, height=600, bg="white")
     canvas.grid(row=1, column=0, padx=10, pady=10)
 
     # Hintergrundbild laden und auf Canvas anwenden
-    hintergrund_image = Image.open("Uhr_Backround_zugeschnitten.jpg")  # Lade dein JPEG Bild
+    hintergrund_image = Image.open("Uhr_Backround_zugeschnitten.jpg")
     hintergrund_image = hintergrund_image.resize((600, 600), Image.LANCZOS)  # Größe des Bildes anpassen
     hintergrund_tk = ImageTk.PhotoImage(hintergrund_image)
     canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW)
@@ -86,11 +86,11 @@ def erstelle_fenster():
     # Variable zur Simulation der Zeit
     simulierte_zeit = datetime.now()
 
-    # Slidebar für Geschwindigkeitsanpassung erstellen (Slider breiter gemacht und Text angepasst)
+    # Slidebar für Geschwindigkeitsanpassung erstellen
     geschwindigkeits_label = ttk.Label(elemente_frame, text="Zeitraffer (-10x bis 10x)")
     geschwindigkeits_label.grid(row=5, column=0, padx=5, pady=(10, 0))
 
-    # Zurück auf Standard-Stil: Slider als tk.Scale-Widget erstellen
+    # Slider erstellen (nicht als Yaru-Theme)
     geschwindigkeits_slider = tk.Scale(elemente_frame, from_=-10, to=10, orient=tk.HORIZONTAL, length=200)
     geschwindigkeits_slider.grid(row=6, column=0, padx=5, pady=10)
     geschwindigkeits_slider.set(1)  # Standardmäßig auf 1x setzen
