@@ -3,6 +3,7 @@ from tkinter import ttk
 from ttkthemes import ThemedTk
 from datetime import datetime, timedelta
 import math
+import time
 from PIL import Image, ImageTk
 
 # Funktion zur Erstellung des Hauptfensters
@@ -140,6 +141,41 @@ def erstelle_fenster():
             canvas.create_line(300, 300, minuten_x, minuten_y, width=4, fill="blue")  # Hervorhebung des Minutenzeigers
         else:
             canvas.create_line(300, 300, minuten_x, minuten_y, width=2, fill="white")
+
+    # Hier beginnt Daniels Teil
+
+        # Aktuelle Uhrzeit
+        stunden = time.localtime().tm_hour % 12
+        minuten = time.localtime().tm_min
+        
+        # Winkel der Zeiger (360 Grad = 24 Stunden oder 60 Minuten/Sekunden)
+        angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
+        winkel_radians = math.radians(angle_stunden)
+
+        # Den Stundenzeiger zeichnen
+        x, y = ZeigerRechnen(250, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
+        canvas.create_line(300, 300, x, y, width=5, fill='black', tags="Nadel")
+        
+        # Liste mit den Punkten, um den Dreieck zu zeichnen (handgeformtes Polygon)
+        x_h, y_h = ZeigerRechnen(200, angle_stunden)
+        gold_hand = [
+            x, y,
+            x_h - 20*math.cos(winkel_radians), y_h - 20*math.sin(winkel_radians),
+            x_h + 20*math.cos(winkel_radians), y_h + 20*math.sin(winkel_radians),
+        ]
+
+        #Dreieck zeichnen
+        canvas.create_polygon(gold_hand, fill="#FFD700", width=3, outline="black", tags="Nadel")
+    
+    # Funktion zum Berechnen der Position der Spitze der Nadel
+    def ZeigerRechnen(laenge, winkel):
+        winkel_radians = math.radians(winkel)
+        x = 300 + laenge * math.sin(winkel_radians)
+        y = 300 - laenge * math.cos(winkel_radians)
+        return x, y
+
+    # Hier endet Daniels Teil
+
 
     # Uhrzeit-Aktualisierung starten
     uhrzeit_aktualisieren()
