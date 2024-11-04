@@ -27,7 +27,7 @@ def erstelle_fenster():
 
     # Combobox (Dropdown-Menü) für Stunden und Minuten erstellen
     auswahl = tk.StringVar()
-    optionen = ["Stunden", "Minuten"]
+    optionen = ["Stunden", "Minuten", "MittelEuropaischeZeit"]
 
     dropdown = ttk.Combobox(elemente_frame, textvariable=auswahl, values=optionen)
     dropdown.grid(row=1, column=0, padx=5, pady=5)
@@ -40,19 +40,30 @@ def erstelle_fenster():
     # Variablen zum Hervorheben der Zeiger
     highlight_stundenzeiger = tk.BooleanVar(value=False)
     highlight_minutenzeiger = tk.BooleanVar(value=False)
+    highlight_mezzeiger = tk.BooleanVar(value=False)
 
     # Funktion zur Anzeige der Auswahl
     def auswahl_anzeigen():
+
+        # Réinitialiser tous les zeiger
+        highlight_stundenzeiger.set(False)
+        highlight_minutenzeiger.set(False)
+        highlight_mezzeiger.set(False)
+        # Obtenir la date et l'heure actuelles
+        simulierte_zeit = datetime.now()
+
         if auswahl.get() == "Stunden":
             stunde = simulierte_zeit.hour
             zeit_label.config(text=f"Aktuelle Stunde: {stunde}")
             highlight_stundenzeiger.set(True)
-            highlight_minutenzeiger.set(False)
         elif auswahl.get() == "Minuten":
             minute = simulierte_zeit.minute
             zeit_label.config(text=f"Aktuelle Minute: {minute}")
-            highlight_stundenzeiger.set(False)
             highlight_minutenzeiger.set(True)
+        elif auswahl.get() == "MittelEuropaischeZeit":
+            mitteleuropaeische_zeit = simulierte_zeit.strftime("%H:%M:%S MEZ")
+            zeit_label.config(text=f"MittelEuropäische Zeit: {mitteleuropaeische_zeit}")
+            highlight_mezzeiger.set(True)
         else:
             zeit_label.config(text="Bitte eine Option auswählen")
             highlight_stundenzeiger.set(False)
@@ -61,6 +72,10 @@ def erstelle_fenster():
     # Button hinzufügen, um die Auswahl zu bestätigen
     bestätigungs_button = ttk.Button(elemente_frame, text="Bestätigen", command=auswahl_anzeigen)
     bestätigungs_button.grid(row=2, column=0, padx=5, pady=5)
+
+    # Label pour afficher l'heure ou la date sélectionnée
+    #zeit_label = ttk.Label(elemente_frame, text="")
+    #zeit_label.grid(row=3, column=0, padx=5, pady=5)
 
     # Button-Widget Beispiel
     button = ttk.Button(elemente_frame, text="Klick mich!", command=lambda: print("Button wurde geklickt!"))
@@ -152,9 +167,12 @@ def erstelle_fenster():
         angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
         winkel_radians = math.radians(angle_stunden)
 
-        # Den Stundenzeiger zeichnen
+        # Den Stundenzeiger für die Mitteleuropaische Zeit zeichnen
         x, y = ZeigerRechnen(250, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
-        canvas.create_line(300, 300, x, y, width=5, fill='black', tags="Nadel")
+        if highlight_mezzeiger.get():
+            canvas.create_line(300, 300, x, y, width=7, fill='green', tags="Nadel")
+        else:
+            canvas.create_line(300, 300, x, y, width=5, fill="white")
         
         # Liste mit den Punkten, um den Dreieck zu zeichnen (handgeformtes Polygon)
         x_h, y_h = ZeigerRechnen(200, angle_stunden)
@@ -175,7 +193,6 @@ def erstelle_fenster():
         return x, y
 
     # Hier endet Daniels Teil
-
 
     # Uhrzeit-Aktualisierung starten
     uhrzeit_aktualisieren()
