@@ -45,12 +45,10 @@ def erstelle_fenster():
     # Funktion zur Anzeige der Auswahl
     def auswahl_anzeigen():
 
-        # Réinitialiser tous les zeiger
+        #  Alle Zeiger zurücksetzen
         highlight_stundenzeiger.set(False)
         highlight_minutenzeiger.set(False)
         highlight_mezzeiger.set(False)
-        # Obtenir la date et l'heure actuelles
-        simulierte_zeit = datetime.now()
 
         if auswahl.get() == "Stunden":
             stunde = simulierte_zeit.hour
@@ -68,14 +66,11 @@ def erstelle_fenster():
             zeit_label.config(text="Bitte eine Option auswählen")
             highlight_stundenzeiger.set(False)
             highlight_minutenzeiger.set(False)
+            highlight_mezzeiger.set(False)
 
     # Button hinzufügen, um die Auswahl zu bestätigen
     bestätigungs_button = ttk.Button(elemente_frame, text="Bestätigen", command=auswahl_anzeigen)
     bestätigungs_button.grid(row=2, column=0, padx=5, pady=5)
-
-    # Label pour afficher l'heure ou la date sélectionnée
-    #zeit_label = ttk.Label(elemente_frame, text="")
-    #zeit_label.grid(row=3, column=0, padx=5, pady=5)
 
     # Button-Widget Beispiel
     button = ttk.Button(elemente_frame, text="Klick mich!", command=lambda: print("Button wurde geklickt!"))
