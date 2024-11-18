@@ -199,9 +199,7 @@ def erstelle_fenster():
         rotated_pil_img = pil_img.rotate(-x)
         #save rotated image as in global var
         tk_img = ImageTk.PhotoImage(rotated_pil_img)
-
-    
-    
+        
     #Hier endet Johannes's Teil
 
     # Uhrzeit-Aktualisierung starten
