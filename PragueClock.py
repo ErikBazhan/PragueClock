@@ -27,7 +27,7 @@ def erstelle_fenster():
 
     # Combobox (Dropdown-Menü) für Stunden und Minuten erstellen
     auswahl = tk.StringVar()
-    optionen = ["Stunden", "Minuten", "MittelEuropaischeZeit"]
+    optionen = ["Stunden", "Minuten", "MittelEuropaischeZeit","Sonnenverlauf"]#ajouter par Reine
 
     dropdown = ttk.Combobox(elemente_frame, textvariable=auswahl, values=optionen)
     dropdown.grid(row=1, column=0, padx=5, pady=5)
@@ -41,6 +41,7 @@ def erstelle_fenster():
     highlight_stundenzeiger = tk.BooleanVar(value=False)
     highlight_minutenzeiger = tk.BooleanVar(value=False)
     highlight_mezzeiger = tk.BooleanVar(value=False)
+    highlight_Sonnezeiger= tk.BooleanVar(value=False)  #Von Reine hinzugefügt
 
     # Funktion zur Anzeige der Auswahl
     def auswahl_anzeigen():
@@ -49,6 +50,7 @@ def erstelle_fenster():
         highlight_stundenzeiger.set(False)
         highlight_minutenzeiger.set(False)
         highlight_mezzeiger.set(False)
+        highlight_Sonnezeiger.set(False)  #Von Reine hinzugefügt
 
         if auswahl.get() == "Stunden":
             stunde = simulierte_zeit.hour
@@ -59,14 +61,19 @@ def erstelle_fenster():
             zeit_label.config(text=f"Aktuelle Minute: {minute}")
             highlight_minutenzeiger.set(True)
         elif auswahl.get() == "MittelEuropaischeZeit":
-            mitteleuropaeische_zeit = simulierte_zeit.strftime("%H:%M:%S MEZ")
+            mitteleuropaeische_zeit = simulierte_zeit.strftime('"%H:%M:%S MEZ"')
             zeit_label.config(text=f"MittelEuropäische Zeit: {mitteleuropaeische_zeit}")
             highlight_mezzeiger.set(True)
+        elif auswahl.get() == "Sonnenverlauf":   #Von Reine hinzugefügt
+            Sonne_verlauf = simulierte_zeit.strftime("%A, %d %B %Y")
+            zeit_label.config(text=f"Aktuelle Sonne position: {Sonne_verlauf}")
+            highlight_Sonnezeiger.set(True)    
         else:
             zeit_label.config(text="Bitte eine Option auswählen")
             highlight_stundenzeiger.set(False)
             highlight_minutenzeiger.set(False)
             highlight_mezzeiger.set(False)
+            highlight_Sonnezeiger.set(False)   #Von Reine hinzugefügt
 
     # Button hinzufügen, um die Auswahl zu bestätigen
     bestätigungs_button = ttk.Button(elemente_frame, text="Bestätigen", command=auswahl_anzeigen)
@@ -188,6 +195,88 @@ def erstelle_fenster():
         return x, y
 
     # Hier endet Daniels Teil
+
+
+    #Anfang Teil Reine
+    
+    # Sonnenbild laden
+    sonnen_image = Image.open("Sonne.png").resize((50, 50), Image.LANCZOS)
+    sonnen_image_tk = ImageTk.PhotoImage(sonnen_image)
+    # Speichere die Bildreferenz, damit sie nicht gelöscht wird
+    canvas.sonnen_image_tk = sonnen_image_tk
+    #z = datetime.now()
+    # Beispiel-Positionen für die Sonne (x, y)
+    positionen = [96.15, 96.15, 96.15, 107.5, 155,202.3, 249.6, 155, 107, 96, 95, 50]#a changer
+
+    # Funktion zur Simulation der Bewegung
+    # Aktuelle Uhrzeit
+    stunden = time.localtime().tm_hour % 12
+    minuten = time.localtime().tm_min
+
+    # Winkel der Zeiger (360 Grad = 24 Stunden oder 60 Minuten/Sekunden)
+    angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
+    winkel_radians = math.radians(angle_stunden)
+    def bewege_sonne(canvas, sonnen_image, positionen):
+        # Startindex für das Array
+        index = 0
+
+        def aktualisiere_position():
+            nonlocal index
+            canvas.delete("sonne")  # Alte Position löschen
+
+            # Position aus dem Array nehmen
+            x_image, y_image = ZeigerRechnen(positionen[index],angle_stunden )
+            canvas.create_image(x_image, y_image, image=sonnen_image_tk, anchor=tk.CENTER)
+            
+            # Nächste Position im Array
+            index = (index + 1) % len(positionen)  # Zyklische Bewegung
+            
+            # Nächste Aktualisierung nach 500ms
+            canvas.after(800, aktualisiere_position)
+    
+        # Schleife starten
+        aktualisiere_position()
+           # Funktion zum Berechnen der Position der Spitze der Nadel
+    def ZeigerRechnen(laenge, winkel):
+        winkel_radians = math.radians(winkel)
+        x = 300 + laenge * math.sin(winkel_radians)
+        y = 300 - laenge * math.cos(winkel_radians)
+        return x, y
+
+    if highlight_Sonnezeiger.get():
+        x, y = ZeigerRechnen(250, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
+        canvas.create_line(300, 300, x, y, width=7, fill='black', tags="Nadel")
+    else:
+        bewege_sonne(canvas, sonnen_image_tk, positionen)
+    
+    # # Aktuelle Uhrzeit
+    # stunden = time.localtime().tm_hour % 12
+    # minuten = time.localtime().tm_min
+    
+    # # Winkel der Zeiger (360 Grad = 24 Stunden oder 60 Minuten/Sekunden)
+    # angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
+    # winkel_radians = math.radians(angle_stunden)
+
+    # positions = []
+    # for i in range(10):
+    #     longueur = 250 * (i + 1) / 10  # Diviser la longueur en 10 segments
+    #     x, y = ZeigerRechnen(longueur, angle_stunden)
+    #     positions.append((x, y))
+    # # Ajouter des conditions pour les positions
+    # current_position = (simulierte_zeit.second % 10)  # Change de position toutes les secondes
+    # zeiger_x, zeiger_y = positions[current_position]
+
+    # # Ajouter l'image sur la position actuelle
+    # canvas.create_image(zeiger_x, zeiger_y, image=sonnen_image_tk, anchor=tk.CENTER)
+
+# def uhrzeit_aktualisieren():
+#     nonlocal simulierte_zeit
+#     simulierte_zeit += timedelta(seconds=1)
+#     zeichne_zifferblatt()
+#     root.after(1000, uhrzeit_aktualisieren)
+
+    #uhrzeit_aktualisieren()
+#Ende Teil Reine
 
     # Uhrzeit-Aktualisierung starten
     uhrzeit_aktualisieren()
