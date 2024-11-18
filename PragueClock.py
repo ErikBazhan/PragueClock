@@ -88,9 +88,9 @@ def erstelle_fenster():
     canvas = tk.Canvas(uhr_frame, width=600, height=600, bg="white")
     canvas.grid(row=1, column=0, padx=10, pady=10)
 
-    # Hintergrundbild laden und auf Canvas anwenden
+    # Hintergrundboem_h_ziffernblatt_bild laden und auf Canvas anwenden
     hintergrund_image = Image.open("Uhr_Backround_zugeschnitten.jpg")
-    hintergrund_image = hintergrund_image.resize((600, 600), Image.LANCZOS)  # Größe des Bildes anpassen
+    hintergrund_image = hintergrund_image.resize((600, 600), Image.LANCZOS)  # Größe des boem_h_ziffernblatt_Bildes anpassen
     hintergrund_tk = ImageTk.PhotoImage(hintergrund_image)
     canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW)
 
@@ -113,13 +113,14 @@ def erstelle_fenster():
         simulierte_zeit += timedelta(seconds=1 * geschwindigkeit)  # Zeit beschleunigen
         uhrzeit_label.config(text=f"Aktuelle Uhrzeit: {simulierte_zeit.strftime('%H:%M:%S')}")
         zeichne_zifferblatt()  # Zifferblatt aktualisieren
+        zeichne_boem_h_ziffernblatt()
         root.after(1000, uhrzeit_aktualisieren)
 
     # Funktion zum Zeichnen des Zifferblatts
     def zeichne_zifferblatt():
         canvas.delete("all")
 
-        # Hintergrundbild auf Canvas zeichnen
+        # Hintergrundboem_h_ziffernblatt_bild auf Canvas zeichnen
         canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW)
 
         # Zifferblatt zeichnen
@@ -189,9 +190,29 @@ def erstelle_fenster():
 
     # Hier endet Daniels Teil
 
+
+    # Hier beginnt Dominick's Teil
+
+    #Anmerkung: Code wird aktuell schrittweise "übertragen"
+
+    def zeichne_boem_h_ziffernblatt():
+
+        #Hintergrundboem_h_ziffernblatt_bild öffnen
+        boem_h_ziffernblatt_bild = Image.open("boem_h_ziffernblatt.png")  # Pfad zum boem_h_ziffernblatt_Bild
+        #Anpassung der boem_h_ziffernblatt_Bildgröße
+        boem_h_ziffernblatt_bild = boem_h_ziffernblatt_bild.resize((650, 650), Image.Resampling.LANCZOS)
+        #Erstellung eines boem_h_ziffernblatt_Bildobjektes, das in Tkinter verwendet werden kann
+        hintergrundboem_h_ziffernblatt_bild = ImageTk.PhotoImage(boem_h_ziffernblatt_bild)
+        #Fügt boem_h_ziffernblatt_Bild auf dem Canvas-Widgetr hinzu und platziert es auf den Koordinaten 150,150 (Zentrierung)
+        canvas.create_image(300, 300, image=hintergrundboem_h_ziffernblatt_bild)
+        #Hält das Hintergrundboem_h_ziffernblatt_bild Objekt im Speicher, um (garbage collected) zu vermeiden
+        canvas.image = hintergrundboem_h_ziffernblatt_bild
+
+    # Hier endet aktuell Dominick's Teil
+
+
     # Uhrzeit-Aktualisierung starten
     uhrzeit_aktualisieren()
-
     return root
 
 # Hauptfunktion, die das Fenster erstellt und die Tkinter-Schleife startet
