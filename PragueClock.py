@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from ttkthemes import ThemedTk
+import datetime as dt
 from datetime import datetime, timedelta
 import math
 import time
@@ -103,16 +104,17 @@ def erstelle_fenster():
         geschwindigkeit = geschwindigkeits_slider.get()  # Geschwindigkeit aus dem Slider
         simulierte_zeit += timedelta(seconds=1 * geschwindigkeit)  # Zeit beschleunigen
         uhrzeit_label.config(text=f"Aktuelle Uhrzeit: {simulierte_zeit.strftime('%H:%M:%S')}")
+        rotate_image() #rotate image
         zeichne_zifferblatt()  # Zifferblatt aktualisieren
         root.after(1000, uhrzeit_aktualisieren)
 
     # Funktion zum Zeichnen des Zifferblatts
     def zeichne_zifferblatt():
         canvas.delete("all")
-
         # Hintergrundbild auf Canvas zeichnen
         canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW)
-
+        #Johannes image, Load global tk_img form rotate funktion into the canvas
+        canvas.create_image(10, 10, image=tk_img, anchor="nw")
         # Zifferblatt zeichnen
         canvas.create_oval(50, 50, 550, 550, outline="black", width=2)
 
@@ -177,38 +179,33 @@ def erstelle_fenster():
 
     # Hier endet Daniels Teil
     # Hier beginnt Johannes's Teil
-    #load image
+    #inital load image
     pil_img = Image.open("zodiac.png")
     #scale down image
     pil_img.thumbnail([590, 590], Resampling.LANCZOS, )
-    #def of loading loop
-    def loading_loop(i=0):
+    #def of rotating image
+    def rotate_image():
+        #calculating time
+        ref_startime = dt.datetime(2024,3,21,00,00)
+        vergangene_zeit = simulierte_zeit - ref_startime
+        vergangene_zeit_s = vergangene_zeit.total_seconds()
+        #calculating revolutions since ref. point
+        revolutions = vergangene_zeit_s / 86164.09
+        #calculating degrees
+        x = 360*(revolutions - int(revolutions))
         #globale Variable tk_img
         global tk_img
-        #w
-        print(f"Loop {i}")
-
-        # If the prgram has loaded, stop the loop
-        if i == 10000: # You can replace this with your loading condition
-            return
-        winkel_sekunde = -360.00 / 86164.09
-        # Rotate the original image
-        rotated_pil_img = pil_img.rotate(winkel_sekunde*i)
+        #rotate image pil_img to x degrees, minus for clockwise
+        rotated_pil_img = pil_img.rotate(-x)
+        #save rotated image as in global var
         tk_img = ImageTk.PhotoImage(rotated_pil_img)
 
-        # put the rotated image inside the canvas
-        canvas.delete(tk_img)
-        canvas.create_image(0, 0, image=tk_img, anchor="nw")
-
-        # Call `loading_loop(i+1)` after 10 milliseconds
-        root.after(10, loading_loop, i+1)
     
-    loading_loop()
+    
     #Hier endet Johannes's Teil
 
     # Uhrzeit-Aktualisierung starten
     uhrzeit_aktualisieren()
-
     return root
 
 # Hauptfunktion, die das Fenster erstellt und die Tkinter-Schleife startet
