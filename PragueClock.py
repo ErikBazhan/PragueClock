@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import math
 import time
 from PIL import Image, ImageTk
+from PIL.Image import Resampling
 
 # Funktion zur Erstellung des Hauptfensters
 def erstelle_fenster():
@@ -175,7 +176,35 @@ def erstelle_fenster():
         return x, y
 
     # Hier endet Daniels Teil
+    # Hier beginnt Johannes's Teil
+    #load image
+    pil_img = Image.open("zodiac.png")
+    #scale down image
+    pil_img.thumbnail([590, 590], Resampling.LANCZOS, )
+    #def of loading loop
+    def loading_loop(i=0):
+        #globale Variable tk_img
+        global tk_img
+        #w
+        print(f"Loop {i}")
 
+        # If the prgram has loaded, stop the loop
+        if i == 10000: # You can replace this with your loading condition
+            return
+        winkel_sekunde = -360.00 / 86164.09
+        # Rotate the original image
+        rotated_pil_img = pil_img.rotate(winkel_sekunde*i)
+        tk_img = ImageTk.PhotoImage(rotated_pil_img)
+
+        # put the rotated image inside the canvas
+        canvas.delete(tk_img)
+        canvas.create_image(0, 0, image=tk_img, anchor="nw")
+
+        # Call `loading_loop(i+1)` after 10 milliseconds
+        root.after(10, loading_loop, i+1)
+    
+    loading_loop()
+    #Hier endet Johannes's Teil
 
     # Uhrzeit-Aktualisierung starten
     uhrzeit_aktualisieren()
