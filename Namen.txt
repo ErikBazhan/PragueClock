@@ -1,0 +1,3 @@
+Ich habe erfolgreich einen Klon, einen Upstream und eine Branch erstellt:
+-Erik
+-Dominick
