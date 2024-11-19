@@ -155,8 +155,8 @@ def erstelle_fenster():
     # Hier beginnt Daniels Teil
 
         # Aktuelle Uhrzeit
-        stunden = time.localtime().tm_hour % 12
-        minuten = time.localtime().tm_min
+        stunden = simulierte_zeit.hour % 12
+        minuten = simulierte_zeit.minute
         
         # Winkel der Zeiger (360 Grad = 24 Stunden oder 60 Minuten/Sekunden)
         angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
