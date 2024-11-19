@@ -149,7 +149,7 @@ def erstelle_fenster():
             canvas.create_line(350, 350, x, y, width=5, fill="white")
         
         # Liste mit den Punkten, um den Dreieck zu zeichnen (handgeformtes Polygon)
-        x_h, y_h = ZeigerRechnen(200, angle_stunden)
+        x_h, y_h = ZeigerRechnen(190, angle_stunden)
         gold_hand = [
             x, y,
             x_h - 20*math.cos(winkel_radians), y_h - 20*math.sin(winkel_radians),
@@ -162,8 +162,8 @@ def erstelle_fenster():
     # Funktion zum Berechnen der Position der Spitze der Nadel
     def ZeigerRechnen(laenge, winkel):
         winkel_radians = math.radians(winkel)
-        x = 300 + laenge * math.sin(winkel_radians)
-        y = 300 - laenge * math.cos(winkel_radians)
+        x = 350 + laenge * math.sin(winkel_radians)
+        y = 350 - laenge * math.cos(winkel_radians)
         return x, y
 
     # Hier endet Daniels Teil
