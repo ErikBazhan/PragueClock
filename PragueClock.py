@@ -11,7 +11,7 @@ def erstelle_fenster():
     # Hauptfenster erstellen mit Yaru-Theme
     root = ThemedTk(theme="yaru")  
     root.title("Prager Uhr Simulation")  # Fenstertitel setzen
-    root.geometry("1280x720")  # Fenstergröße setzen
+    root.geometry("1280x800")  # Fenstergröße setzen
 
     # Frame für die gesamte Anwendung
     haupt_frame = ttk.Frame(root, padding="10")
@@ -44,8 +44,7 @@ def erstelle_fenster():
 
     # Funktion zur Anzeige der Auswahl
     def auswahl_anzeigen():
-
-        #  Alle Zeiger zurücksetzen
+        # Alle Zeiger zurücksetzen
         highlight_stundenzeiger.set(False)
         highlight_minutenzeiger.set(False)
         highlight_mezzeiger.set(False)
@@ -64,13 +63,19 @@ def erstelle_fenster():
             highlight_mezzeiger.set(True)
         else:
             zeit_label.config(text="Bitte eine Option auswählen")
-            highlight_stundenzeiger.set(False)
-            highlight_minutenzeiger.set(False)
-            highlight_mezzeiger.set(False)
 
     # Button hinzufügen, um die Auswahl zu bestätigen
     bestätigungs_button = ttk.Button(elemente_frame, text="Bestätigen", command=auswahl_anzeigen)
     bestätigungs_button.grid(row=2, column=0, padx=5, pady=5)
+
+    # Button, um zur aktuellen Uhrzeit zurückzukehren
+    def setze_aktuelle_zeit():
+        nonlocal simulierte_zeit
+        simulierte_zeit = datetime.now()  # Setzt die simulierte Zeit zurück auf die aktuelle Zeit
+        geschwindigkeits_slider.set(1)  # Setzt die Geschwindigkeit zurück auf 1x
+
+    aktuelle_zeit_button = ttk.Button(elemente_frame, text="Zur aktuellen Uhrzeit", command=setze_aktuelle_zeit)
+    aktuelle_zeit_button.grid(row=6, column=0, padx=5, pady=5)
 
     # Button-Widget Beispiel
     button = ttk.Button(elemente_frame, text="Klick mich!", command=lambda: print("Button wurde geklickt!"))
@@ -84,79 +89,52 @@ def erstelle_fenster():
     uhrzeit_label = ttk.Label(uhr_frame, font=("Helvetica", 16))
     uhrzeit_label.grid(row=0, column=0, padx=10, pady=10)
 
-    # Canvas für das analoge Zifferblatt (Auflösung 600x600)
-    canvas = tk.Canvas(uhr_frame, width=600, height=600, bg="white")
+    # Canvas für das analoge Zifferblatt (Größe 700x700)
+    canvas = tk.Canvas(uhr_frame, width=700, height=700, bg="white")
     canvas.grid(row=1, column=0, padx=10, pady=10)
 
-    # Hintergrundboem_h_ziffernblatt_bild laden und auf Canvas anwenden
-    hintergrund_image = Image.open("Uhr_Backround_zugeschnitten.jpg")
-    hintergrund_image = hintergrund_image.resize((600, 600), Image.LANCZOS)  # Größe des boem_h_ziffernblatt_Bildes anpassen
+    # Hintergrundbild laden und anpassen
+    hintergrund_image = Image.open("Uhr_Backround_700x700.jpg")
+    hintergrund_image = hintergrund_image.resize((700, 700), Image.LANCZOS)
     hintergrund_tk = ImageTk.PhotoImage(hintergrund_image)
-    canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW)
 
     # Variable zur Simulation der Zeit
     simulierte_zeit = datetime.now()
 
     # Slidebar für Geschwindigkeitsanpassung erstellen
-    geschwindigkeits_label = ttk.Label(elemente_frame, text="Zeitraffer (-10x bis 10x)")
-    geschwindigkeits_label.grid(row=5, column=0, padx=5, pady=(10, 0))
-
-    # Slider erstellen (nicht als Yaru-Theme)
-    geschwindigkeits_slider = tk.Scale(elemente_frame, from_=-10, to=10, orient=tk.HORIZONTAL, length=200)
-    geschwindigkeits_slider.grid(row=6, column=0, padx=5, pady=10)
-    geschwindigkeits_slider.set(1)  # Standardmäßig auf 1x setzen
+    geschwindigkeits_slider = tk.Scale(elemente_frame, from_=-1000, to=1000, orient=tk.HORIZONTAL, length=200)
+    geschwindigkeits_slider.grid(row=7, column=0, padx=5, pady=10)
+    geschwindigkeits_slider.set(1)
 
     # Funktion zur Aktualisierung der Uhrzeit
     def uhrzeit_aktualisieren():
         nonlocal simulierte_zeit
-        geschwindigkeit = geschwindigkeits_slider.get()  # Geschwindigkeit aus dem Slider
-        simulierte_zeit += timedelta(seconds=1 * geschwindigkeit)  # Zeit beschleunigen
+        geschwindigkeit = geschwindigkeits_slider.get()
+        simulierte_zeit += timedelta(seconds=1 * geschwindigkeit)
         uhrzeit_label.config(text=f"Aktuelle Uhrzeit: {simulierte_zeit.strftime('%H:%M:%S')}")
-        zeichne_zifferblatt()  # Zifferblatt aktualisieren
+        zeichne_zifferblatt()
         zeichne_boem_h_ziffernblatt()
         root.after(1000, uhrzeit_aktualisieren)
 
     # Funktion zum Zeichnen des Zifferblatts
     def zeichne_zifferblatt():
         canvas.delete("all")
+        canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW)            
 
-        # Hintergrundboem_h_ziffernblatt_bild auf Canvas zeichnen
-        canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW)
-
-        # Zifferblatt zeichnen
-        canvas.create_oval(50, 50, 550, 550, outline="black", width=2)
-
-        # Stundenmarkierungen
-        for i in range(12):
-            winkel = math.radians(i * 30)
-            x1 = 300 + 240 * math.sin(winkel)
-            y1 = 300 - 240 * math.cos(winkel)
-            x2 = 300 + 280 * math.sin(winkel)
-            y2 = 300 - 280 * math.cos(winkel)
-            canvas.create_line(x1, y1, x2, y2, width=2)
-
-        # Stundenzeiger
         stunden_winkel = math.radians((simulierte_zeit.hour % 12 + simulierte_zeit.minute / 60) * 30)
-        stunden_x = 300 + 140 * math.sin(stunden_winkel)
-        stunden_y = 300 - 140 * math.cos(stunden_winkel)
-        if highlight_stundenzeiger.get():
-            canvas.create_line(300, 300, stunden_x, stunden_y, width=6, fill="red")  # Hervorhebung des Stundenzeigers
-        else:
-            canvas.create_line(300, 300, stunden_x, stunden_y, width=4, fill="white")
+        stunden_x = 350 + 200 * math.sin(stunden_winkel)
+        stunden_y = 350 - 200 * math.cos(stunden_winkel)
+        canvas.create_line(350, 350, stunden_x, stunden_y, width=4, fill="white")
 
-        # Minutenzeiger
         minuten_winkel = math.radians(simulierte_zeit.minute * 6)
-        minuten_x = 300 + 200 * math.sin(minuten_winkel)
-        minuten_y = 300 - 200 * math.cos(minuten_winkel)
-        if highlight_minutenzeiger.get():
-            canvas.create_line(300, 300, minuten_x, minuten_y, width=4, fill="blue")  # Hervorhebung des Minutenzeigers
-        else:
-            canvas.create_line(300, 300, minuten_x, minuten_y, width=2, fill="white")
+        minuten_x = 350 + 250 * math.sin(minuten_winkel)
+        minuten_y = 350 - 250 * math.cos(minuten_winkel)
+        canvas.create_line(350, 350, minuten_x, minuten_y, width=2, fill="white")
 
     # Hier beginnt Daniels Teil
 
         # Aktuelle Uhrzeit
-        stunden = time.localtime().tm_hour % 12
+        stunden = time.localtime().tm_hour % 12 # Hier vielleicht auf simulierte_zeit beziehen, der Zeiger bewegt sich nur mit aktueller Uhrzeit -Erik
         minuten = time.localtime().tm_min
         
         # Winkel der Zeiger (360 Grad = 24 Stunden oder 60 Minuten/Sekunden)
@@ -166,9 +144,9 @@ def erstelle_fenster():
         # Den Stundenzeiger für die Mitteleuropaische Zeit zeichnen
         x, y = ZeigerRechnen(250, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
         if highlight_mezzeiger.get():
-            canvas.create_line(300, 300, x, y, width=7, fill='green', tags="Nadel")
+            canvas.create_line(350, 350, x, y, width=7, fill='green', tags="Nadel")
         else:
-            canvas.create_line(300, 300, x, y, width=5, fill="white")
+            canvas.create_line(350, 350, x, y, width=5, fill="white")
         
         # Liste mit den Punkten, um den Dreieck zu zeichnen (handgeformtes Polygon)
         x_h, y_h = ZeigerRechnen(200, angle_stunden)
@@ -198,13 +176,13 @@ def erstelle_fenster():
     def zeichne_boem_h_ziffernblatt():
 
         #Hintergrundboem_h_ziffernblatt_bild öffnen
-        boem_h_ziffernblatt_bild = Image.open("boem_h_ziffernblatt.png")  # Pfad zum boem_h_ziffernblatt_Bild
+        boem_h_ziffernblatt_bild = Image.open("boem_h_ziffernblatt_700x700.png")  # Pfad zum boem_h_ziffernblatt_Bild
         #Anpassung der boem_h_ziffernblatt_Bildgröße
-        boem_h_ziffernblatt_bild = boem_h_ziffernblatt_bild.resize((650, 650), Image.Resampling.LANCZOS)
+        boem_h_ziffernblatt_bild = boem_h_ziffernblatt_bild.resize((565, 565), Image.Resampling.LANCZOS)
         #Erstellung eines boem_h_ziffernblatt_Bildobjektes, das in Tkinter verwendet werden kann
         hintergrundboem_h_ziffernblatt_bild = ImageTk.PhotoImage(boem_h_ziffernblatt_bild)
         #Fügt boem_h_ziffernblatt_Bild auf dem Canvas-Widgetr hinzu und platziert es auf den Koordinaten 150,150 (Zentrierung)
-        canvas.create_image(300, 300, image=hintergrundboem_h_ziffernblatt_bild)
+        canvas.create_image(351, 348, image=hintergrundboem_h_ziffernblatt_bild) # Zentrierung funktioniert nicht ganz! Wahrscheinlich ist eines der Bilder oval oder so -Erik
         #Hält das Hintergrundboem_h_ziffernblatt_bild Objekt im Speicher, um (garbage collected) zu vermeiden
         canvas.image = hintergrundboem_h_ziffernblatt_bild
 
