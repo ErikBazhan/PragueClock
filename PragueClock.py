@@ -134,8 +134,8 @@ def erstelle_fenster():
     # Hier beginnt Daniels Teil
 
         # Aktuelle Uhrzeit
-        stunden = time.localtime().tm_hour % 12 # Hier vielleicht auf simulierte_zeit beziehen, der Zeiger bewegt sich nur mit aktueller Uhrzeit -Erik
-        minuten = time.localtime().tm_min
+        stunden = simulierte_zeit.hour % 12
+        minuten = simulierte_zeit.minute
         
         # Winkel der Zeiger (360 Grad = 24 Stunden oder 60 Minuten/Sekunden)
         angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
@@ -149,7 +149,7 @@ def erstelle_fenster():
             canvas.create_line(350, 350, x, y, width=5, fill="white")
         
         # Liste mit den Punkten, um den Dreieck zu zeichnen (handgeformtes Polygon)
-        x_h, y_h = ZeigerRechnen(200, angle_stunden)
+        x_h, y_h = ZeigerRechnen(190, angle_stunden)
         gold_hand = [
             x, y,
             x_h - 20*math.cos(winkel_radians), y_h - 20*math.sin(winkel_radians),
@@ -162,8 +162,8 @@ def erstelle_fenster():
     # Funktion zum Berechnen der Position der Spitze der Nadel
     def ZeigerRechnen(laenge, winkel):
         winkel_radians = math.radians(winkel)
-        x = 300 + laenge * math.sin(winkel_radians)
-        y = 300 - laenge * math.cos(winkel_radians)
+        x = 350 + laenge * math.sin(winkel_radians)
+        y = 350 - laenge * math.cos(winkel_radians)
         return x, y
 
     # Hier endet Daniels Teil
