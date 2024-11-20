@@ -199,83 +199,81 @@ def erstelle_fenster():
 
     #Anfang Teil Reine
     
+    # Affichage des mois
+    monate_frame = ttk.LabelFrame(haupt_frame, text="Monate des Jahres", padding="10")
+    monate_frame.grid(row=0, column=2, padx=10, pady=10, sticky=(tk.W))
+
+    monate_label = ttk.Label(monate_frame, text="")
+    monate_label.grid(row=0, column=2, padx=10, pady=10)
+    
     # Sonnenbild laden
-    sonnen_image = Image.open("Sonne.png").resize((50, 50), Image.LANCZOS)
+    sonnen_image = Image.open("Sonne.png").resize((60, 60), Image.LANCZOS)
     sonnen_image_tk = ImageTk.PhotoImage(sonnen_image)
+
     # Speichere die Bildreferenz, damit sie nicht gelöscht wird
     canvas.sonnen_image_tk = sonnen_image_tk
-    #z = datetime.now()
-    # Beispiel-Positionen für die Sonne (x, y)
-    positionen = [96.15, 96.15, 96.15, 107.5, 155,202.3, 249.6, 155, 107, 96, 95, 50]#a changer
 
-    # Funktion zur Simulation der Bewegung
     # Aktuelle Uhrzeit
-    stunden = time.localtime().tm_hour % 12
-    minuten = time.localtime().tm_min
+    stunden = simulierte_zeit.hour % 12
+    minuten = simulierte_zeit.min
+    current_month = simulierte_zeit.month
 
     # Winkel der Zeiger (360 Grad = 24 Stunden oder 60 Minuten/Sekunden)
     angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
     winkel_radians = math.radians(angle_stunden)
-    def bewege_sonne(canvas, sonnen_image, positionen):
-        # Startindex für das Array
-        index = 0
-
+    def bewege_sonne(canvas, sonnen_image_tk, current_month):
+    
+        länge = 0
         def aktualisiere_position():
-            nonlocal index
-            canvas.delete("sonne")  # Alte Position löschen
+            canvas.delete("sonne")  # Löscht die alte Sonnen Bild
 
-            # Position aus dem Array nehmen
-            x_image, y_image = ZeigerRechnen(positionen[index],angle_stunden )
-            canvas.create_image(x_image, y_image, image=sonnen_image_tk, anchor=tk.CENTER)
-            
-            # Nächste Position im Array
-            index = (index + 1) % len(positionen)  # Zyklische Bewegung
-            
-            # Nächste Aktualisierung nach 500ms
-            canvas.after(800, aktualisiere_position)
+            # Sonne Koordinaten abhängig von Monat 
+            x, y = ZeigerRechnen(länge, angle_stunden)  
+
+            # Zeichnung der Sonne in seiner neue position 
+            canvas.create_image(x, y, image=sonnen_image_tk, anchor=tk.CENTER, tags="sonne")
+            canvas.after(1000, aktualisiere_position)
+
+        # Aktuel monat anzeigen
+        monate_label.config(text=f"Monat: {simulierte_zeit.strftime('%B')}")
+
+        # Position basierend auf dem Monat
+        if current_month == 1:     # Januar
+           länge = 96.5            # 38.6% * 250(Länge der DanielsZeiger)
+        elif current_month == 2:   # Februar
+           länge = 115             # 46%
+        elif current_month == 3:   # März
+           länge = 160             # 64%
+        elif current_month == 4:   # April
+           länge = 208             # 83.2%
+        elif current_month == 5:   # Mai
+           länge = 240             # 96%
+        elif current_month == 6:   # Juni
+           länge = 255             # 102%
+        elif current_month == 7:   # Juli
+           länge = 240             # 96%
+        elif current_month == 8:   # August
+           länge = 178             # 71,2%
+        elif current_month == 9:   # September
+           länge = 155             # 62%
+        elif current_month == 10:  # Oktober
+           länge = 120             # 48%
+        elif current_month == 11:  # November
+           länge = 105             # 42%
+        elif current_month == 12:  # Dezember
+           länge = 95              # 38%
+        else:
+           länge = 0  # default
+
+        # Placer l'image à la position du mois
+        x_image, y_image = ZeigerRechnen(länge, angle_stunden)
+        canvas.create_image(x_image, y_image, image=sonnen_image_tk, anchor=tk.CENTER)
+        
+        # Nächste Aktualisierung nach 500ms
+        canvas.after(0, aktualisiere_position)
+        
+    bewege_sonne(canvas, sonnen_image_tk, current_month)
     
-        # Schleife starten
-        aktualisiere_position()
-           # Funktion zum Berechnen der Position der Spitze der Nadel
-    def ZeigerRechnen(laenge, winkel):
-        winkel_radians = math.radians(winkel)
-        x = 300 + laenge * math.sin(winkel_radians)
-        y = 300 - laenge * math.cos(winkel_radians)
-        return x, y
-
-    if highlight_Sonnezeiger.get():
-        x, y = ZeigerRechnen(250, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
-        canvas.create_line(300, 300, x, y, width=7, fill='black', tags="Nadel")
-    else:
-        bewege_sonne(canvas, sonnen_image_tk, positionen)
-    
-    # # Aktuelle Uhrzeit
-    # stunden = time.localtime().tm_hour % 12
-    # minuten = time.localtime().tm_min
-    
-    # # Winkel der Zeiger (360 Grad = 24 Stunden oder 60 Minuten/Sekunden)
-    # angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
-    # winkel_radians = math.radians(angle_stunden)
-
-    # positions = []
-    # for i in range(10):
-    #     longueur = 250 * (i + 1) / 10  # Diviser la longueur en 10 segments
-    #     x, y = ZeigerRechnen(longueur, angle_stunden)
-    #     positions.append((x, y))
-    # # Ajouter des conditions pour les positions
-    # current_position = (simulierte_zeit.second % 10)  # Change de position toutes les secondes
-    # zeiger_x, zeiger_y = positions[current_position]
-
-    # # Ajouter l'image sur la position actuelle
-    # canvas.create_image(zeiger_x, zeiger_y, image=sonnen_image_tk, anchor=tk.CENTER)
-
-# def uhrzeit_aktualisieren():
-#     nonlocal simulierte_zeit
-#     simulierte_zeit += timedelta(seconds=1)
-#     zeichne_zifferblatt()
-#     root.after(1000, uhrzeit_aktualisieren)
-
-    #uhrzeit_aktualisieren()
 #Ende Teil Reine
 
     # Uhrzeit-Aktualisierung starten
@@ -291,3 +289,24 @@ def main():
 # Entry-Point der Anwendung
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
