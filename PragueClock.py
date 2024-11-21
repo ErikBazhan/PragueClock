@@ -1,9 +1,10 @@
+# Online Python compiler (interpreter) to run Python online.
+# Write Python 3 code in this online editor and run it.
 import tkinter as tk
 from tkinter import ttk
 from ttkthemes import ThemedTk
 from datetime import datetime, timedelta
 import math
-import time
 from PIL import Image, ImageTk
 
 # Funktion zur Erstellung des Hauptfensters
@@ -164,95 +165,80 @@ def erstelle_fenster():
 
         #Dreieck zeichnen
         canvas.create_polygon(gold_hand, fill="#FFD700", width=3, outline="black", tags="Nadel")
-    
-    # Funktion zum Berechnen der Position der Spitze der Nadel
-    def ZeigerRechnen(laenge, winkel):
-        winkel_radians = math.radians(winkel)
-        x = 350 + laenge * math.sin(winkel_radians)
-        y = 350 - laenge * math.cos(winkel_radians)
-        return x, y
 
     # Hier endet Daniels Teil
 
 
     #Anfang Teil Reine
     
-    # Affichage des mois
-    monate_frame = ttk.LabelFrame(haupt_frame, text="Monate des Jahres", padding="10")
-    monate_frame.grid(row=0, column=2, padx=10, pady=10, sticky=(tk.W))
+        # Monate anzeigen
+        monate_frame = ttk.LabelFrame(haupt_frame, text="Monate des Jahres", padding="10")
+        monate_frame.grid(row=0, column=2, padx=10, pady=10, sticky=(tk.W))
 
-    monate_label = ttk.Label(monate_frame, text="")
-    monate_label.grid(row=0, column=2, padx=10, pady=10)
-    
-    # Sonnenbild laden
-    sonnen_image = Image.open("Sonne.png").resize((60, 60), Image.LANCZOS)
-    sonnen_image_tk = ImageTk.PhotoImage(sonnen_image)
+        monate_label = ttk.Label(monate_frame, text="")
+        monate_label.grid(row=0, column=2, padx=10, pady=10)
+        
+        # Sonnenbild laden
+        sonnen_image = Image.open("Sonne.png").resize((60, 60), Image.LANCZOS)
+        sonnen_image_tk = ImageTk.PhotoImage(sonnen_image)
 
-    # Speichere die Bildreferenz, damit sie nicht gelöscht wird
-    canvas.sonnen_image_tk = sonnen_image_tk
+        # Speichere die Bildreferenz, damit sie nicht gelöscht wird
+        canvas.sonnen_image_tk = sonnen_image_tk
 
-    # Aktuelle Uhrzeit
-    stunden = simulierte_zeit.hour % 12
-    minuten = simulierte_zeit.min
-    current_month = simulierte_zeit.month
-
-    # Winkel der Zeiger (360 Grad = 24 Stunden oder 60 Minuten/Sekunden)
-    angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
-    winkel_radians = math.radians(angle_stunden)
-    def bewege_sonne(canvas, sonnen_image_tk, current_month):
-    
+        # Aktuelle Uhrzeit
+        stunden = simulierte_zeit.hour % 12
+        minuten = simulierte_zeit.minute
+        current_month = simulierte_zeit.month
         länge = 0
-        def aktualisiere_position():
-            canvas.delete("sonne")  # Löscht die alte Sonnen Bild
 
-            # Sonne Koordinaten abhängig von Monat 
-            x, y = ZeigerRechnen(länge, angle_stunden)  
-
-            # Zeichnung der Sonne in seiner neue position 
-            canvas.create_image(x, y, image=sonnen_image_tk, anchor=tk.CENTER, tags="sonne")
-            canvas.after(1000, aktualisiere_position)
+        # Sonne Koordinaten abhängig von Monat 
+        x, y = ZeigerRechnen(länge, angle_stunden)  
 
         # Aktuel monat anzeigen
         monate_label.config(text=f"Monat: {simulierte_zeit.strftime('%B')}")
 
         # Position basierend auf dem Monat
         if current_month == 1:     # Januar
-           länge = 96.5            # 38.6% * 250(Länge der DanielsZeiger)
+           länge = 75              # 30% * 250(Länge der DanielsZeiger)
         elif current_month == 2:   # Februar
-           länge = 115             # 46%
+           länge = 90              # 36%
         elif current_month == 3:   # März
-           länge = 160             # 64%
+           länge = 130             # 52%
         elif current_month == 4:   # April
-           länge = 208             # 83.2%
+           länge = 160             # 64%
         elif current_month == 5:   # Mai
-           länge = 240             # 96%
+           länge = 205             # 82%
         elif current_month == 6:   # Juni
-           länge = 255             # 102%
+           länge = 225             # 90%
         elif current_month == 7:   # Juli
-           länge = 240             # 96%
+           länge = 200             # 80%
         elif current_month == 8:   # August
-           länge = 178             # 71,2%
+           länge = 170             # 68%
         elif current_month == 9:   # September
-           länge = 155             # 62%
+           länge = 130             # 52%
         elif current_month == 10:  # Oktober
-           länge = 120             # 48%
+           länge = 100             # 40%
         elif current_month == 11:  # November
-           länge = 105             # 42%
+           länge = 80              # 32%
         elif current_month == 12:  # Dezember
-           länge = 95              # 38%
+           länge = 75              # 30%
         else:
            länge = 0  # default
 
-        # Placer l'image à la position du mois
+        # Bild an der Position des Monats platzieren
         x_image, y_image = ZeigerRechnen(länge, angle_stunden)
         canvas.create_image(x_image, y_image, image=sonnen_image_tk, anchor=tk.CENTER)
-        
-        # Nächste Aktualisierung nach 500ms
-        canvas.after(0, aktualisiere_position)
-        
-    bewege_sonne(canvas, sonnen_image_tk, current_month)
-    
-#Ende Teil Reine
+
+    #Ende Reine Teil
+       
+    #Danielsfunktion
+    def ZeigerRechnen(laenge, winkel):
+        winkel_radians = math.radians(winkel)
+        x = 350 + laenge * math.sin(winkel_radians)
+        y = 350 - laenge * math.cos(winkel_radians)
+        return x, y 
+
+
     # Hier beginnt Dominick's Teil
 
     #Anmerkung: Code wird aktuell schrittweise "übertragen"
