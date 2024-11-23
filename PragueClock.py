@@ -3,7 +3,6 @@ from tkinter import ttk
 from ttkthemes import ThemedTk
 from datetime import datetime, timedelta
 import math
-import time
 from PIL import Image, ImageTk
 
 # Funktion zur Erstellung des Hauptfensters
@@ -19,7 +18,7 @@ def erstelle_fenster():
 
     # Ein eingerahmter Bereich für die Bedienelemente links
     elemente_frame = ttk.LabelFrame(haupt_frame, text="Bedienelemente", padding="10")
-    elemente_frame.grid(row=0, column=0, padx=10, pady=10, sticky=(tk.W, tk.E))
+    elemente_frame.grid(row=0, column=0, padx=10, pady=10, sticky=(tk.N))
 
     # Label-Widget Beispiel
     label = ttk.Label(elemente_frame, text="Willkommen zur Prager Uhr Simulation!")
@@ -72,46 +71,74 @@ def erstelle_fenster():
     def setze_aktuelle_zeit():
         nonlocal simulierte_zeit
         simulierte_zeit = datetime.now()  # Setzt die simulierte Zeit zurück auf die aktuelle Zeit
-        geschwindigkeits_slider.set(1)  # Setzt die Geschwindigkeit zurück auf 1x
 
-    aktuelle_zeit_button = ttk.Button(elemente_frame, text="Zur aktuellen Uhrzeit", command=setze_aktuelle_zeit)
-    aktuelle_zeit_button.grid(row=6, column=0, padx=5, pady=5)
+    def beschleunigung_zuruecksetzen():
+        uhrzeit_slider.set(1)  # Setzt die Geschwindigkeit zurück auf 1x
+        datum_slider.set(0)  # Setzt die Geschwindigkeit zurück auf 0x
 
-    # Button-Widget Beispiel
-    button = ttk.Button(elemente_frame, text="Klick mich!", command=lambda: print("Button wurde geklickt!"))
-    button.grid(row=4, column=0, padx=5, pady=5)
+    # Beschleunigung zurücksetzen Button
+    beschl_zurueck_button = ttk.Button(elemente_frame, text="Beschleunigung zurücksetzen", command=beschleunigung_zuruecksetzen)
+    beschl_zurueck_button.grid(row=4, column=0, padx=5, pady=5)
+
+    # Datum und Uhrzeit zurücksetzen Button
+    aktuelle_zeit_button = ttk.Button(elemente_frame, text="Datum und Uhrzeit zurücksetzen", command=setze_aktuelle_zeit)
+    aktuelle_zeit_button.grid(row=8, column=0, padx=5, pady=5)
 
     # Ein eingerahmter Bereich für die Uhrzeitanzeige und Geschwindigkeitseinstellungen
     uhr_frame = ttk.LabelFrame(haupt_frame, text="Uhrzeitanzeige", padding="10")
-    uhr_frame.grid(row=0, column=1, padx=10, pady=10, sticky=(tk.NE))
-
-    # Label für die aktuelle Uhrzeit rechts im Fenster erstellen
-    uhrzeit_label = ttk.Label(uhr_frame, font=("Helvetica", 16))
-    uhrzeit_label.grid(row=0, column=0, padx=10, pady=10)
+    uhr_frame.grid(row=0, column=1, padx=10, pady=10, sticky=(tk.N))
 
     # Canvas für das analoge Zifferblatt (Größe 700x700)
     canvas = tk.Canvas(uhr_frame, width=700, height=700, bg="white")
-    canvas.grid(row=1, column=0, padx=10, pady=10)
+    canvas.grid(row=0, column=0, padx=10, pady=10)
 
     # Hintergrundbild laden und anpassen
     hintergrund_image = Image.open("Uhr_Backround_700x700.jpg")
     hintergrund_image = hintergrund_image.resize((700, 700), Image.LANCZOS)
     hintergrund_tk = ImageTk.PhotoImage(hintergrund_image)
 
+    # Frame für Uhrzeit und Datum erstellen
+    zeit_datum_frame = ttk.LabelFrame(haupt_frame, text="Zeit & Datum", padding="10")
+    zeit_datum_frame.grid(row=0, column=2, padx=10, pady=10, sticky=(tk.N))
+
+    # Label für die aktuelle Uhrzeit im neuen Frame erstellen
+    uhrzeit_label = ttk.Label(zeit_datum_frame, font=("Helvetica", 16))
+    uhrzeit_label.grid(row=0, column=0, padx=10, pady=5)  # Erste Zeile, Spalte 0
+
+    # Label für das aktuelle Datum im neuen Frame erstellen
+    datum_label = ttk.Label(zeit_datum_frame, font=("Helvetica", 16))
+    datum_label.grid(row=1, column=0, padx=10, pady=5)  # Zweite Zeile, Spalte 0
+
     # Variable zur Simulation der Zeit
     simulierte_zeit = datetime.now()
 
     # Slidebar für Geschwindigkeitsanpassung erstellen
-    geschwindigkeits_slider = tk.Scale(elemente_frame, from_=-1000, to=1000, orient=tk.HORIZONTAL, length=200)
-    geschwindigkeits_slider.grid(row=7, column=0, padx=5, pady=10)
-    geschwindigkeits_slider.set(1)
+    uhrzeit_slider = tk.Scale(elemente_frame, from_=-1000, to=1000, orient=tk.HORIZONTAL, length=200, label="Uhrzeit beschleunigen")
+    uhrzeit_slider.grid(row=10, column=0, padx=5, pady=10)
+    uhrzeit_slider.set(1)
+
+    # Slidebar für Geschwindigkeitsanpassung der Tage erstellen
+    datum_slider = tk.Scale(elemente_frame, from_=-365, to=365, orient=tk.HORIZONTAL, length=200, label="Tage beschleunigen")
+    datum_slider.grid(row=11, column=0, padx=5, pady=10)
+    datum_slider.set(0)
 
     # Funktion zur Aktualisierung der Uhrzeit
     def uhrzeit_aktualisieren():
         nonlocal simulierte_zeit
-        geschwindigkeit = geschwindigkeits_slider.get()
+
+        # Simulation der Uhrzeit
+        geschwindigkeit = uhrzeit_slider.get()
         simulierte_zeit += timedelta(seconds=1 * geschwindigkeit)
+        
+        # Simulation des Datums
+        tage_geschwindigkeit = datum_slider.get()
+        simulierte_zeit += timedelta(days=1 * tage_geschwindigkeit)
+
+        # Aktualisierung der Uhrzeit
         uhrzeit_label.config(text=f"Aktuelle Uhrzeit: {simulierte_zeit.strftime('%H:%M:%S')}")
+        # Aktualisierung des Datums
+        datum_label.config(text=f"Aktuelles Datum: {simulierte_zeit.strftime('%Y-%m-%d')}")
+
         zeichne_zifferblatt()
         zeichne_boem_h_ziffernblatt()
         root.after(1000, uhrzeit_aktualisieren)
