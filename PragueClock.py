@@ -1,3 +1,5 @@
+# Online Python compiler (interpreter) to run Python online.
+# Write Python 3 code in this online editor and run it.
 import tkinter as tk
 from tkinter import ttk
 from ttkthemes import ThemedTk
@@ -57,9 +59,9 @@ def erstelle_fenster():
             zeit_label.config(text=f"Aktuelle Minute: {minute}")
             highlight_minutenzeiger.set(True)
         elif auswahl.get() == "MittelEuropaischeZeit":
-            mitteleuropaeische_zeit = simulierte_zeit.strftime("%H:%M:%S MEZ")
+            mitteleuropaeische_zeit = simulierte_zeit.strftime('"%H:%M:%S MEZ"')
             zeit_label.config(text=f"MittelEuropäische Zeit: {mitteleuropaeische_zeit}")
-            highlight_mezzeiger.set(True)
+            highlight_mezzeiger.set(True)  
         else:
             zeit_label.config(text="Bitte eine Option auswählen")
 
@@ -185,15 +187,76 @@ def erstelle_fenster():
 
         #Dreieck zeichnen
         canvas.create_polygon(gold_hand, fill="#FFD700", width=3, outline="black", tags="Nadel")
+
+    # Hier endet Daniels Teil
+
+
+    #Anfang Teil Reine
     
-    # Funktion zum Berechnen der Position der Spitze der Nadel
+        # Monate anzeigen
+        monate_frame = ttk.LabelFrame(haupt_frame, text="Monate des Jahres", padding="10")
+        monate_frame.grid(row=0, column=2, padx=10, pady=10, sticky=(tk.W))
+
+        monate_label = ttk.Label(monate_frame, text="")
+        monate_label.grid(row=0, column=2, padx=10, pady=10)
+        
+        # Sonnenbild laden
+        sonnen_image = Image.open("Sonne.png").resize((60, 60), Image.LANCZOS)
+        sonnen_image_tk = ImageTk.PhotoImage(sonnen_image)
+
+        # Speichere die Bildreferenz, damit sie nicht gelöscht wird
+        canvas.sonnen_image_tk = sonnen_image_tk
+
+        # Aktuelle Uhrzeit
+        stunden = simulierte_zeit.hour % 12
+        minuten = simulierte_zeit.minute
+        current_month = simulierte_zeit.month
+        sonne_laenge = 0
+
+        # Aktuel monat anzeigen
+        monate_label.config(text=f"Monat: {simulierte_zeit.strftime('%B')}")
+
+        # Position basierend auf dem Monat
+        if current_month == 1:     # Januar
+           sonne_laenge = 75       # 30% * 250(laenge der DanielsZeiger)
+        elif current_month == 2:   # Februar
+           sonne_laenge = 90       # 36%
+        elif current_month == 3:   # März
+           sonne_laenge = 130      # 52%
+        elif current_month == 4:   # April
+           sonne_laenge = 160      # 64%
+        elif current_month == 5:   # Mai
+           sonne_laenge = 205      # 82%
+        elif current_month == 6:   # Juni
+           sonne_laenge = 225      # 90%
+        elif current_month == 7:   # Juli
+           sonne_laenge = 200      # 80%
+        elif current_month == 8:   # August
+           sonne_laenge = 170      # 68%
+        elif current_month == 9:   # September
+           sonne_laenge = 130      # 52%
+        elif current_month == 10:  # Oktober
+           sonne_laenge = 100      # 40%
+        elif current_month == 11:  # November
+           sonne_laenge = 80       # 32%
+        elif current_month == 12:  # Dezember
+           sonne_laenge = 75       # 30%
+        else:
+           sonne_laenge = 0  # default
+
+        # Bild an der Position des Monats platzieren
+        x_image, y_image = ZeigerRechnen(sonne_laenge, angle_stunden)
+        canvas.create_image(x_image, y_image, image=sonnen_image_tk, anchor=tk.CENTER)
+
+    #Ende Reine Teil
+       
+    #Danielsfunktion
+    #Funktion zum Berechnen der Position der Spitze der Nadel
     def ZeigerRechnen(laenge, winkel):
         winkel_radians = math.radians(winkel)
         x = 350 + laenge * math.sin(winkel_radians)
         y = 350 - laenge * math.cos(winkel_radians)
-        return x, y
-
-    # Hier endet Daniels Teil
+        return x, y 
 
 
     # Hier beginnt Dominick's Teil
@@ -228,3 +291,24 @@ def main():
 # Entry-Point der Anwendung
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
