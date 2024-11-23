@@ -28,7 +28,7 @@ def erstelle_fenster():
 
     # Combobox (Dropdown-Menü) für Stunden und Minuten erstellen
     auswahl = tk.StringVar()
-    optionen = ["Stunden", "Minuten", "MittelEuropaischeZeit","Sonnenverlauf"]#ajouter par Reine
+    optionen = ["Stunden", "Minuten", "MittelEuropaischeZeit"]
 
     dropdown = ttk.Combobox(elemente_frame, textvariable=auswahl, values=optionen)
     dropdown.grid(row=1, column=0, padx=5, pady=5)
@@ -42,7 +42,6 @@ def erstelle_fenster():
     highlight_stundenzeiger = tk.BooleanVar(value=False)
     highlight_minutenzeiger = tk.BooleanVar(value=False)
     highlight_mezzeiger = tk.BooleanVar(value=False)
-    highlight_Sonnezeiger= tk.BooleanVar(value=False)  #Von Reine hinzugefügt
 
     # Funktion zur Anzeige der Auswahl
     def auswahl_anzeigen():
@@ -50,7 +49,6 @@ def erstelle_fenster():
         highlight_stundenzeiger.set(False)
         highlight_minutenzeiger.set(False)
         highlight_mezzeiger.set(False)
-        highlight_Sonnezeiger.set(False)  #Von Reine hinzugefügt
 
         if auswahl.get() == "Stunden":
             stunde = simulierte_zeit.hour
@@ -63,11 +61,7 @@ def erstelle_fenster():
         elif auswahl.get() == "MittelEuropaischeZeit":
             mitteleuropaeische_zeit = simulierte_zeit.strftime('"%H:%M:%S MEZ"')
             zeit_label.config(text=f"MittelEuropäische Zeit: {mitteleuropaeische_zeit}")
-            highlight_mezzeiger.set(True)
-        elif auswahl.get() == "Sonnenverlauf":   #Von Reine hinzugefügt
-            Sonne_verlauf = simulierte_zeit.strftime("%A, %d %B %Y")
-            zeit_label.config(text=f"Aktuelle Sonne position: {Sonne_verlauf}")
-            highlight_Sonnezeiger.set(True)    
+            highlight_mezzeiger.set(True)  
         else:
             zeit_label.config(text="Bitte eine Option auswählen")
 
@@ -189,49 +183,47 @@ def erstelle_fenster():
         stunden = simulierte_zeit.hour % 12
         minuten = simulierte_zeit.minute
         current_month = simulierte_zeit.month
-        länge = 0
-
-        # Sonne Koordinaten abhängig von Monat 
-        x, y = ZeigerRechnen(länge, angle_stunden)  
+        sonne_laenge = 0
 
         # Aktuel monat anzeigen
         monate_label.config(text=f"Monat: {simulierte_zeit.strftime('%B')}")
 
         # Position basierend auf dem Monat
         if current_month == 1:     # Januar
-           länge = 75              # 30% * 250(Länge der DanielsZeiger)
+           sonne_laenge = 75       # 30% * 250(laenge der DanielsZeiger)
         elif current_month == 2:   # Februar
-           länge = 90              # 36%
+           sonne_laenge = 90       # 36%
         elif current_month == 3:   # März
-           länge = 130             # 52%
+           sonne_laenge = 130      # 52%
         elif current_month == 4:   # April
-           länge = 160             # 64%
+           sonne_laenge = 160      # 64%
         elif current_month == 5:   # Mai
-           länge = 205             # 82%
+           sonne_laenge = 205      # 82%
         elif current_month == 6:   # Juni
-           länge = 225             # 90%
+           sonne_laenge = 225      # 90%
         elif current_month == 7:   # Juli
-           länge = 200             # 80%
+           sonne_laenge = 200      # 80%
         elif current_month == 8:   # August
-           länge = 170             # 68%
+           sonne_laenge = 170      # 68%
         elif current_month == 9:   # September
-           länge = 130             # 52%
+           sonne_laenge = 130      # 52%
         elif current_month == 10:  # Oktober
-           länge = 100             # 40%
+           sonne_laenge = 100      # 40%
         elif current_month == 11:  # November
-           länge = 80              # 32%
+           sonne_laenge = 80       # 32%
         elif current_month == 12:  # Dezember
-           länge = 75              # 30%
+           sonne_laenge = 75       # 30%
         else:
-           länge = 0  # default
+           sonne_laenge = 0  # default
 
         # Bild an der Position des Monats platzieren
-        x_image, y_image = ZeigerRechnen(länge, angle_stunden)
+        x_image, y_image = ZeigerRechnen(sonne_laenge, angle_stunden)
         canvas.create_image(x_image, y_image, image=sonnen_image_tk, anchor=tk.CENTER)
 
     #Ende Reine Teil
        
     #Danielsfunktion
+    #Funktion zum Berechnen der Position der Spitze der Nadel
     def ZeigerRechnen(laenge, winkel):
         winkel_radians = math.radians(winkel)
         x = 350 + laenge * math.sin(winkel_radians)
