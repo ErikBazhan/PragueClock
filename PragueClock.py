@@ -5,12 +5,7 @@ from tkinter import ttk
 from ttkthemes import ThemedTk
 from datetime import datetime, timedelta
 import math
-import time
-import pytz
 from PIL import Image, ImageTk
-from astral import LocationInfo
-from astral.sun import sun
-
 
 # Funktion zur Erstellung des Hauptfensters
 def erstelle_fenster():
@@ -117,14 +112,8 @@ def erstelle_fenster():
     datum_label.grid(row=1, column=0, padx=10, pady=5)  # Zweite Zeile, Spalte 0
 
     # Variable zur Simulation der Zeit
-    fuseau = pytz.timezone("Europe/Prague")
     simulierte_zeit = datetime.now()
 
-    # Define location (Prague in this example)
-    ville = LocationInfo("Prague", "Czech Republic", "Europe/Prague", 50.0833, 14.4167)
-    horaire = sun(ville.observer, date=simulierte_zeit)
-    lever_du_soleil = horaire['sunrise']
-    coucher_du_soleil = horaire['sunset']
 
     # Slidebar für Geschwindigkeitsanpassung erstellen
     uhrzeit_slider = tk.Scale(elemente_frame, from_=-1000, to=1000, orient=tk.HORIZONTAL, length=200, label="Uhrzeit beschleunigen")
@@ -161,7 +150,6 @@ def erstelle_fenster():
     def zeichne_zifferblatt():
         canvas.delete("all")
         canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW) 
-        nonlocal simulierte_zeit           
 
         stunden_winkel = math.radians((simulierte_zeit.hour % 12 + simulierte_zeit.minute / 60) * 30)
         stunden_x = 350 + 200 * math.sin(stunden_winkel)
@@ -174,38 +162,34 @@ def erstelle_fenster():
         canvas.create_line(350, 350, minuten_x, minuten_y, width=2, fill="white")
 
     # Hier beginnt Daniels Teil
-        # old_german_hour, old_german_minute = old_german_time(simulierte_zeit, lever_du_soleil, coucher_du_soleil)
-        # total_minutes = old_german_hour * 60 + old_german_minute
-        # angle = math.radians((total_minutes / (24 * 60))) + math.pi / 4
     
         #Aktuelle Uhrzeit
-        stunden = simulierte_zeit.hour
+        stunden = simulierte_zeit.hour % 24
         minuten = simulierte_zeit.minute
         
         # Winkel der Zeiger (360 Grad / 24 = 15 Grad)
         angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
-        #winkel_radians = math.radians(angle_stunden)
+        winkel_radians = math.radians(angle_stunden) + math.pi
 
         # Den Stundenzeiger für die Mitteleuropaische Zeit zeichnen
-        x, y = ZeigerRechnen(200, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
+        x, y = ZeigerRechnen(220, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
         if highlight_mezzeiger.get():
             canvas.create_line(350, 350, x, y, width=7, fill='green', tags="Nadel")
         else:
             canvas.create_line(350, 350, x, y, width=5, fill="white")
         
         # Liste mit den Punkten, um den Dreieck zu zeichnen (handgeformtes Polygon)
-        # x_h, y_h = ZeigerRechnen(190, angle)
-        # gold_hand = [
-        #     x, y,
-        #     x_h - 15*math.sin(angle), y_h - 15*math.cos(angle),
-        #     x_h + 15*math.sin(angle), y_h + 15*math.cos(angle),
-        # ]
+        x_h, y_h = ZeigerRechnen(190, angle_stunden)
+        gold_hand = [
+            x, y,
+            x_h - 15*math.cos(winkel_radians), y_h - 15*math.sin(winkel_radians),
+            x_h + 15*math.cos(winkel_radians), y_h + 15*math.sin(winkel_radians),
+        ]
 
         #Dreieck zeichnen
-        #canvas.create_polygon(gold_hand, fill="#FFD700", width=3, outline="black", tags="Nadel")
+        canvas.create_polygon(gold_hand, fill="#FFD700", width=3, outline="black", tags="Nadel")
 
     # Hier endet Daniels Teil
-
 
     #Anfang Teil Reine
     
@@ -224,7 +208,7 @@ def erstelle_fenster():
         canvas.sonnen_image_tk = sonnen_image_tk
 
         # Aktuelle Uhrzeit
-        stunden = simulierte_zeit.hour % 12
+        stunden = simulierte_zeit.hour % 24
         minuten = simulierte_zeit.minute
         current_month = simulierte_zeit.month
         sonne_laenge = 0
@@ -269,36 +253,10 @@ def erstelle_fenster():
     #Danielsfunktion
     #Funktion zum Berechnen der Position der Spitze der Nadel
     def ZeigerRechnen(laenge, winkel):
-        winkel_radians = math.radians(winkel)
+        winkel_radians = math.radians(winkel) + math.pi
         x = 350 + laenge * math.sin(winkel_radians)
-        y = 350 + laenge * math.cos(winkel_radians)
+        y = 350 - laenge * math.cos(winkel_radians)
         return x, y 
-
-    # Calcul de l'heure Old German Time
-    def old_german_time(current_time, sunrise, sunset):
-        if sunrise <= current_time <= sunset:
-            # C'est la journée - calculer la position de l'aiguille pour la journée
-            day_duration = sunset - sunrise
-            time_since_sunrise = current_time - sunrise
-            day_fraction = time_since_sunrise / day_duration
-            old_german_hour_total = day_fraction * 24
-        else:
-            # C'est la nuit - calculer la position de l'aiguille pour la nuit
-            if current_time > sunset:
-                next_sunrise = lever_du_soleil + timedelta(days=1)
-                night_duration = next_sunrise - sunset
-                time_since_sunset = current_time - sunset
-            else:
-                previous_sunset = coucher_du_soleil - timedelta(days=1)
-                night_duration = sunrise - previous_sunset
-                time_since_sunset = current_time - previous_sunset
-            
-            night_fraction = time_since_sunset / night_duration
-            old_german_hour_total = night_fraction * 24
-        
-        old_german_hour = int(old_german_hour_total)
-        old_german_minute = int((old_german_hour_total - old_german_hour) * 60)
-        return old_german_hour, old_german_minute
 
     # Hier beginnt Dominick's Teil
 
