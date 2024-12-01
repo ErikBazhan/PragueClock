@@ -6,6 +6,8 @@ from ttkthemes import ThemedTk
 from datetime import datetime, timedelta
 import math
 from PIL import Image, ImageTk
+import datetime as dt
+from PIL.Image import Resampling
 
 # Funktion zur Erstellung des Hauptfensters
 def erstelle_fenster():
@@ -141,7 +143,8 @@ def erstelle_fenster():
         uhrzeit_label.config(text=f"Aktuelle Uhrzeit: {simulierte_zeit.strftime('%H:%M:%S')}")
         # Aktualisierung des Datums
         datum_label.config(text=f"Aktuelles Datum: {simulierte_zeit.strftime('%Y-%m-%d')}")
-
+        
+        rotate_image()
         zeichne_zifferblatt()
         zeichne_boem_h_ziffernblatt()
         root.after(1000, uhrzeit_aktualisieren)
@@ -149,7 +152,8 @@ def erstelle_fenster():
     # Funktion zum Zeichnen des Zifferblatts
     def zeichne_zifferblatt():
         canvas.delete("all")
-        canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW) 
+        canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW)
+        canvas.create_image(100, 100, image=zodiac_img, anchor=tk.NW)            
 
         stunden_winkel = math.radians((simulierte_zeit.hour % 12 + simulierte_zeit.minute / 60) * 30)
         stunden_x = 350 + 200 * math.sin(stunden_winkel)
@@ -276,7 +280,30 @@ def erstelle_fenster():
         canvas.image = hintergrundboem_h_ziffernblatt_bild
 
     # Hier endet aktuell Dominick's Teil
-
+    # Hier beginnt Johannes's Teil
+    #inital load image
+    pil_img = Image.open("zodiac.png")
+    #scale down image
+    pil_img.thumbnail([500, 500], Resampling.LANCZOS, )
+    
+    #def of rotating image
+    def rotate_image():
+        #calculating time
+        ref_startime = dt.datetime(2024,3,21,00,00)
+        vergangene_zeit = simulierte_zeit - ref_startime
+        vergangene_zeit_s = vergangene_zeit.total_seconds()
+        #calculating revolutions since ref. point
+        revolutions = vergangene_zeit_s / 86164.09
+        #calculating degrees
+        x = 360*(revolutions - int(revolutions))
+        #globale Variable tk_img
+        global zodiac_img
+        #rotate image pil_img to x degrees, minus for clockwise
+        rotated_pil_img = pil_img.rotate(-x)
+        #save rotated image as in global var
+        zodiac_img = ImageTk.PhotoImage(rotated_pil_img)
+        
+    #Hier endet Johannes's Teil
 
     # Uhrzeit-Aktualisierung starten
     uhrzeit_aktualisieren()
