@@ -116,6 +116,7 @@ def erstelle_fenster():
     # Variable zur Simulation der Zeit
     simulierte_zeit = datetime.now()
 
+
     # Slidebar für Geschwindigkeitsanpassung erstellen
     uhrzeit_slider = tk.Scale(elemente_frame, from_=-1000, to=1000, orient=tk.HORIZONTAL, length=200, label="Uhrzeit beschleunigen")
     uhrzeit_slider.grid(row=10, column=0, padx=5, pady=10)
@@ -165,17 +166,17 @@ def erstelle_fenster():
         canvas.create_line(350, 350, minuten_x, minuten_y, width=2, fill="white")
 
     # Hier beginnt Daniels Teil
-
-        # Aktuelle Uhrzeit
-        stunden = simulierte_zeit.hour % 12
+    
+        #Aktuelle Uhrzeit
+        stunden = simulierte_zeit.hour % 24
         minuten = simulierte_zeit.minute
         
-        # Winkel der Zeiger (360 Grad = 24 Stunden oder 60 Minuten/Sekunden)
+        # Winkel der Zeiger (360 Grad / 24 = 15 Grad)
         angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
-        winkel_radians = math.radians(angle_stunden)
+        winkel_radians = math.radians(angle_stunden) + math.pi
 
         # Den Stundenzeiger für die Mitteleuropaische Zeit zeichnen
-        x, y = ZeigerRechnen(250, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
+        x, y = ZeigerRechnen(220, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
         if highlight_mezzeiger.get():
             canvas.create_line(350, 350, x, y, width=7, fill='green', tags="Nadel")
         else:
@@ -185,15 +186,14 @@ def erstelle_fenster():
         x_h, y_h = ZeigerRechnen(190, angle_stunden)
         gold_hand = [
             x, y,
-            x_h - 20*math.cos(winkel_radians), y_h - 20*math.sin(winkel_radians),
-            x_h + 20*math.cos(winkel_radians), y_h + 20*math.sin(winkel_radians),
+            x_h - 15*math.cos(winkel_radians), y_h - 15*math.sin(winkel_radians),
+            x_h + 15*math.cos(winkel_radians), y_h + 15*math.sin(winkel_radians),
         ]
 
         #Dreieck zeichnen
         canvas.create_polygon(gold_hand, fill="#FFD700", width=3, outline="black", tags="Nadel")
 
     # Hier endet Daniels Teil
-
 
     #Anfang Teil Reine
     
@@ -212,7 +212,7 @@ def erstelle_fenster():
         canvas.sonnen_image_tk = sonnen_image_tk
 
         # Aktuelle Uhrzeit
-        stunden = simulierte_zeit.hour % 12
+        stunden = simulierte_zeit.hour % 24
         minuten = simulierte_zeit.minute
         current_month = simulierte_zeit.month
         sonne_laenge = 0
@@ -257,11 +257,10 @@ def erstelle_fenster():
     #Danielsfunktion
     #Funktion zum Berechnen der Position der Spitze der Nadel
     def ZeigerRechnen(laenge, winkel):
-        winkel_radians = math.radians(winkel)
+        winkel_radians = math.radians(winkel) + math.pi
         x = 350 + laenge * math.sin(winkel_radians)
         y = 350 - laenge * math.cos(winkel_radians)
         return x, y 
-
 
     # Hier beginnt Dominick's Teil
 
