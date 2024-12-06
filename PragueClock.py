@@ -9,6 +9,10 @@ from PIL import Image, ImageTk
 import datetime as dt
 from PIL.Image import Resampling
 
+from astral import LocationInfo              # Für Sonnenuntergangszeit -> Berechnung der boemischen h -Dominick
+from astral.sun import sun                   # "
+import pytz                                  # astral liefert datetime-objekte mit Zeitzone, wird für interne Rechnungen der boemischen h benoetigt -Dominick
+
 # Funktion zur Erstellung des Hauptfensters
 def erstelle_fenster():
     # Hauptfenster erstellen mit Yaru-Theme
@@ -145,7 +149,8 @@ def erstelle_fenster():
         
         rotate_image()
         zeichne_zifferblatt()
-        zeichne_boem_h_ziffernblatt()
+        zeichne_boem_h_ziffernblatt(berechne_aktuelle_boehm_h(simulierte_zeit)) #Boehmische Stunden -Dominick
+
         root.after(1000, uhrzeit_aktualisieren)
 
     # Funktion zum Zeichnen des Zifferblatts
@@ -265,22 +270,97 @@ def erstelle_fenster():
 
     # Hier beginnt Dominick's Teil
 
-    #Anmerkung: Code wird aktuell schrittweise "übertragen"
+    #Funktion zur Berechung der aktuellen boemischen Stunde anhand der Simulationsvariable simulierte_zeit
 
-    def zeichne_boem_h_ziffernblatt():
+    #Boehmisches Zeitsystem (bzw. auch "alt-tschechisch" oder "italienisches" Zeitsystem) funktioniert so:
+    #Der Tag beginnt immer zur Sonnuntergangszeit, diese ändert sich im Laufe des Jahres
+    #Der Tag endet zum Zeitpunkt des naechsten Sonnenuntergangs
+    #Der Zeitraum dazwischen wird in 24 Segmente eingeteilt
+    #Da die Tage je nach Zeit im Jahr variieren, variiert auch die Länge einer Boehmischen Stunde
+    #z.B im Sommer wenn Zeitraum zwischen Sonnenuntergaengen laenger ist, ist auch die Boehmische Stunde laenger 
+
+    def berechne_aktuelle_boehm_h(simulierte_zeit):
+        
+        #Standort fuer Sonnenuntergangszeit definieren (Aktuell Prag -> Gut zum Testen mit Online-Simulation)
+        standort = LocationInfo("Prague", "Czech Republic")
+
+        #Aktuelles Datum und Zeit (mit Zeitzone, da astral nur Objekte mit Zeitzone erstellt und sonst nicht gerechnet werden kann -> führt zu Fehler: TypeError: can't subtract offset-naive and offset-aware datetimes)
+        zeitzone = pytz.timezone(standort.timezone)
+        datum_und_zeit_heute_mit_simulierter_Zeit = zeitzone.localize(simulierte_zeit)
+
+        #Berechne alle relevanten Sonneninformationen (Sonnenaufgang, Sonnenuntergang) fuer uebergebenes datetime-Objekt = datum_und_zeit_heute_mit_simulierter_Zeit
+        s_heute = sun(standort.observer, date=datum_und_zeit_heute_mit_simulierter_Zeit)
+
+        #Extrahiere die heutige Sonnenuntergangszeit
+        sonnenuntergangszeit_heute = s_heute['sunset']
+
+        #Berechne die Sonnenuntergangszeit fuer den naechsten Tag
+        s_morgen = sun(standort.observer, date=datum_und_zeit_heute_mit_simulierter_Zeit + timedelta(days=1))
+        sonnenuntergangszeit_naechstertag = s_morgen['sunset']
+
+        #Berechne die Differenz zwischen den Sonnenuntergangszeiten der beiden Tage    
+        delta_sonnenuntergangszeiten = sonnenuntergangszeit_naechstertag - sonnenuntergangszeit_heute
+
+        #Berechne dynamisch die aktuelle dauer einer boemischen Stunde (Abhängig von der Differenz der Sonnenuntergangszeiten, also von der Zeit im Jahr)
+        dauer_boehmische_h = delta_sonnenuntergangszeiten/24
+
+        #Berechne die Zeit seit dem letzten Sonnenuntergang
+        #Um keine negativen Stunden zu erhalten, ist diese Unterscheidung erforderlich
+        if datum_und_zeit_heute_mit_simulierter_Zeit >= sonnenuntergangszeit_heute:
+            zeit_seit_sonnenuntergang = datum_und_zeit_heute_mit_simulierter_Zeit - sonnenuntergangszeit_heute
+        else:
+            s_gestern = sun(standort.observer, date=datum_und_zeit_heute_mit_simulierter_Zeit - timedelta(days=1))
+            sonnenuntergangszeit_gestern = s_gestern['sunset']
+            zeit_seit_sonnenuntergang = datum_und_zeit_heute_mit_simulierter_Zeit - sonnenuntergangszeit_gestern
+
+        #Finale Berechnung der aktuellen Boemischen Stunde
+        aktuelle_boehmische_h = zeit_seit_sonnenuntergang / dauer_boehmische_h 
+
+        return aktuelle_boehmische_h
+    
+    #Funktion zum Zeichnen des boehmischen Ziffernblatts anhand der aktuellen boehmischen Stunde
+    def zeichne_boem_h_ziffernblatt(aktuelle_boehmische_h):
 
         #Hintergrundboem_h_ziffernblatt_bild öffnen
         boem_h_ziffernblatt_bild = Image.open("boem_h_ziffernblatt_700x700.png")  # Pfad zum boem_h_ziffernblatt_Bild
+
         #Anpassung der boem_h_ziffernblatt_Bildgröße
         boem_h_ziffernblatt_bild = boem_h_ziffernblatt_bild.resize((565, 565), Image.Resampling.LANCZOS)
+
+
+        #Rotation
+        #Die Anzeige muss "korrigiert" werden, anhand der aktuellen mitteleuropäischen Zeit
+        #Die eigentliche Rotation der Anzeige ist die Anpassung der laenge der Boehmischen Stunde abhaengig von der Zeit im Jahr
+
+        # Berechnung der aktuellen mitteleuropäischen Zeit
+        aktuelle_mez = simulierte_zeit.hour % 24 + simulierte_zeit.minute / 60.0
+
+        # Berechnung des Differenzwinkels zwischen der mitteleuropäischen Stunde und der böhmischen Stunde
+        winkel_differenz = (aktuelle_mez - aktuelle_boehmische_h) * 15  # Jede Stunde entspricht 15 Grad, da 360/24 = 15
+
+        # Berechnung des gesamten Rotationswinkels für das boehmische Ziffernblatt (mit optionalem Start-Offset -> benoetigt, da Bild bereits einen Offset hat und nicht bei Stunde 1 startet)
+        startwinkel_offset = 285  # Angepasst an Bild-Offset, siehe vorherigen Kommentar
+        winkel = -winkel_differenz + startwinkel_offset # Minus, da die Rotation im Uhrzeigersinn erfolgt
+
+        # Drehen des Ziffernblatts
+        boem_h_ziffernblatt_bild = boem_h_ziffernblatt_bild.rotate(winkel, resample=Image.Resampling.BICUBIC)
+
+        #Ende Rotation
+
+
         #Erstellung eines boem_h_ziffernblatt_Bildobjektes, das in Tkinter verwendet werden kann
         hintergrundboem_h_ziffernblatt_bild = ImageTk.PhotoImage(boem_h_ziffernblatt_bild)
-        #Fügt boem_h_ziffernblatt_Bild auf dem Canvas-Widgetr hinzu und platziert es auf den Koordinaten 150,150 (Zentrierung)
+
+        #Fügt boem_h_ziffernblatt_Bild auf dem Canvas-Widgetr hinzu und platziert es auf den relevanten Koordinaten 351,348 (Zentrierung)
         canvas.create_image(351, 348, image=hintergrundboem_h_ziffernblatt_bild) # Zentrierung funktioniert nicht ganz! Wahrscheinlich ist eines der Bilder oval oder so -Erik
+
         #Hält das Hintergrundboem_h_ziffernblatt_bild Objekt im Speicher, um (garbage collected) zu vermeiden
         canvas.image = hintergrundboem_h_ziffernblatt_bild
 
+
     # Hier endet aktuell Dominick's Teil
+
+
     # Hier beginnt Johannes's Teil
     #inital load image
     pil_img = Image.open("zodiac.png")
