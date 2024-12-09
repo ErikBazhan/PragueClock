@@ -34,7 +34,7 @@ def erstelle_fenster():
 
     # Combobox (Dropdown-Menü) für Stunden und Minuten erstellen
     auswahl = tk.StringVar()
-    optionen = ["Stunden", "Minuten", "MittelEuropaischeZeit"]
+    optionen = ["Stunden", "Minuten", "MittelEuropaischeZeit", "BoehmischeZeit"] 
 
     dropdown = ttk.Combobox(elemente_frame, textvariable=auswahl, values=optionen)
     dropdown.grid(row=1, column=0, padx=5, pady=5)
@@ -67,7 +67,13 @@ def erstelle_fenster():
         elif auswahl.get() == "MittelEuropaischeZeit":
             mitteleuropaeische_zeit = simulierte_zeit.strftime('"%H:%M:%S MEZ"')
             zeit_label.config(text=f"MittelEuropäische Zeit: {mitteleuropaeische_zeit}")
-            highlight_mezzeiger.set(True)  
+            highlight_mezzeiger.set(True) 
+        elif auswahl.get() == "BoehmischeZeit":
+            boehmische_zeit = berechne_aktuelle_boehm_h(simulierte_zeit) # Berechnung gibt float Wert zurueck -Dominick
+            boehmische_stunde = int(boehmische_zeit)                     # Extrahieren der Stunden (Ganzzahliger Teil) -Dominick
+            boehmische_minute = int((boehmische_zeit - boehmische_stunde) * 60) # Differenz aus Ganzzahligem Teil und float Wert sind Minuten nach der aktuellen Stunde (in h), * 60 um in Minuten umzuwandlen -Dominick
+            formattierte_boehmische_zeit = f"{boehmische_stunde:02d}:{boehmische_minute:02d}"
+            zeit_label.config(text=f"Böhmische Zeit: {formattierte_boehmische_zeit}")
         else:
             zeit_label.config(text="Bitte eine Option auswählen")
 
@@ -269,7 +275,7 @@ def erstelle_fenster():
 
     # Hier beginnt Dominick's Teil
 
-    #Funktion zur Berechung der aktuellen boemischen Stunde anhand der Simulationsvariable simulierte_zeit
+    #Boehmische Stunden
 
     #Boehmisches Zeitsystem (bzw. auch "alt-tschechisch" oder "italienisches" Zeitsystem) funktioniert so:
     #Der Tag beginnt immer zur Sonnuntergangszeit, diese ändert sich im Laufe des Jahres
@@ -278,6 +284,7 @@ def erstelle_fenster():
     #Da die Tage je nach Zeit im Jahr variieren, variiert auch die Länge einer Boehmischen Stunde
     #z.B im Sommer wenn Zeitraum zwischen Sonnenuntergaengen laenger ist, ist auch die Boehmische Stunde laenger 
 
+    #Funktion zur Berechung der aktuellen boemischen Stunde anhand der Simulationsvariable simulierte_zeit
     def berechne_aktuelle_boehm_h(simulierte_zeit):
         
         #Standort fuer Sonnenuntergangszeit definieren (Aktuell Prag -> Gut zum Testen mit Online-Simulation)
@@ -357,7 +364,7 @@ def erstelle_fenster():
         canvas.image = hintergrundboem_h_ziffernblatt_bild
 
 
-    # Hier endet aktuell Dominick's Teil
+    # Hier endet Dominick's Teil
 
 
     # Hier beginnt Johannes's Teil
