@@ -1,6 +1,9 @@
-# Online Python compiler (interpreter) to run Python online.
-# Write Python 3 code in this online editor and run it.
 import tkinter as tk
+from astral import moon
+from astral import LocationInfo
+from astral.moon import elevation, azimuth
+#from geopy.geocoders import Nominatim
+import requests
 from tkinter import ttk
 from ttkthemes import ThemedTk
 from datetime import datetime, timedelta
@@ -192,10 +195,11 @@ def erstelle_fenster():
 
 
     #Anfang Teil Reine
-    
+
+        # Frame für Uhrzeit und Datum erstellen
         # Monate anzeigen
         monate_frame = ttk.LabelFrame(haupt_frame, text="Monate des Jahres", padding="10")
-        monate_frame.grid(row=0, column=2, padx=10, pady=10, sticky=(tk.W))
+        monate_frame.grid(row=0, column=2, padx=10, pady=10, sticky=(tk.E))
 
         monate_label = ttk.Label(monate_frame, text="")
         monate_label.grid(row=0, column=2, padx=10, pady=10)
@@ -242,14 +246,113 @@ def erstelle_fenster():
         elif current_month == 12:  # Dezember
            sonne_laenge = 75       # 30%
         else:
-           sonne_laenge = 0  # default
+           sonne_laenge = 0        # default
 
         # Bild an der Position des Monats platzieren
         x_image, y_image = ZeigerRechnen(sonne_laenge, angle_stunden)
         canvas.create_image(x_image, y_image, image=sonnen_image_tk, anchor=tk.CENTER)
 
+        #Mondphase
+        def get_moon_phase():
+            """Berechnet und gibt die aktuelle Mondphase basierend auf dem heutigen Datum zurück."""
+            #today = datetime.date.today()
+            phase_day = moon.phase(date=simulierte_zeit)
+
+            # Bestimmen der Hauptphasen
+            if phase_day == 0:
+                phase_name = "Neumond"
+            elif 1 <= phase_day < 7:
+                phase_name = "Zunehmende Sichel"
+            elif phase_day == 7:
+                phase_name = "Erstes Viertel"
+            elif 8 <= phase_day < 14:
+                phase_name = "Zunehmender Mond"
+            elif phase_day == 14:
+                phase_name = "Vollmond"
+            elif 15 <= phase_day < 21:
+                phase_name = "Abnehmender Mond"
+            elif phase_day == 21:
+                phase_name = "Letztes Viertel"
+            else:
+                phase_name = "Abnehmende Sichel"
+
+            return phase_name, phase_day
+
+        def update_phase():
+            """Aktualisiert das Fenster mit der aktuellen Mondphase."""
+            phase_name, phase_day = get_moon_phase()
+            label_phase.config(text=f"Aktuelle Phase: {phase_name}")
+            label_day.config(text=f"Tag im Mondzyklus: {phase_day:.1f}")  # Der Mond hat ein Zyklus von 29.5 Tage jede Monat
+ 
+        #Frame für Mondphase und Tag im Mondzyklus anzeigen  
+        title_frame = ttk.LabelFrame(monate_frame, text="Aktuelle Mondphase",  padding="10")
+        title_frame.grid(row=1, column=2, padx=10, pady=10)
+
+        label_phase = ttk.Label(monate_frame, text="")
+        label_phase.grid(row=2, column=2, padx=10, pady=10)
+
+        label_day = ttk.Label(monate_frame, text="")
+        label_day.grid(row=3, column=2, padx=10, pady=10)
+        # Button zum Aktualisieren
+        btn_update = ttk.Button(monate_frame, text="Aktualisieren", command=update_phase)
+        btn_update.grid(row=4, column=2, padx=10, pady=10, sticky=(tk.S))
+
+        # Initialisierung
+        update_phase()
+
+        def get_location():
+            """Ermittelt den geografischen Standort des Computers basierend auf der IP-Adresse."""
+            try:
+                # Standortinformationen von einem IP-Service abrufen
+                response = requests.get('https://ipinfo.io/')
+                data = response.json()
+
+                # Koordinaten und Stadtname extrahieren
+                loc = data.get("loc", "0,0").split(",")
+                city = data.get("city", "Unbekannt")
+                country = data.get("country", "Unbekannt")
+                latitude, longitude = float(loc[0]), float(loc[1])
+
+                return city, country, latitude, longitude
+            except Exception as e:
+                print(f"Fehler beim Abrufen des Standorts: {e}")
+                return "Unbekannt", "Unbekannt", 0.0, 0.0
+
+        # Standort des Computers ermitteln
+        city_name, country_name, lat, lon = get_location()
+
+        # Beobachterstandort basierend auf den ermittelten Koordinaten erstellen
+        observer_location = LocationInfo(city_name, country_name, "UTC", lat, lon)
+
+        # Aktuelles Datum und Uhrzeit abrufen
+        now = simulierte_zeit
+
+        # Mondkoordinaten berechnen
+        moon_altitude = elevation(observer_location.observer, now) #Die funktion elevator berechnet die Höhe des Mondes über dem Horizont (in Grad).
+        moon_azimuth = azimuth(observer_location.observer, now) #gibt die Richtung des Mondes an (in Grad)
+        
+        
+        """Aktualisiert das Fenster mit der aktuellen Mondphase."""
+        # # Standort des Computers ermitteln
+        # city_name, country_name, lat, lon = get_location()
+        # label_lat.config(text=f"Ermittelter Standort:Lat: {lat}")
+        # label_lon.config(text=f"Mondhöhe (Altitude): Lon: {lon}")
+
+        # # Ergebnisse anzeigen
+        # label_lat = ttk.Label(monate_frame, text="")
+        # label_lat.grid(row=6, column=2, padx=10, pady=10)
+
+        # label_lon = ttk.Label(monate_frame, text="")
+        # label_lon.grid(row=7, column=2, padx=10, pady=10)
+
+        print(f"Datum und Uhrzeit: {now}")
+        print(f"Ermittelter Standort: {city_name}, {country_name} (Lat: {lat}, Lon: {lon})")
+        print(f"Mondhöhe (Altitude): {moon_altitude:.2f}°")
+        print(f"Azimut des Mondes: {moon_azimuth:.2f}°")
+    
     #Ende Reine Teil
-       
+
+
     #Danielsfunktion
     #Funktion zum Berechnen der Position der Spitze der Nadel
     def ZeigerRechnen(laenge, winkel):
