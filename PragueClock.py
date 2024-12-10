@@ -103,7 +103,7 @@ def erstelle_fenster():
 
     # Frame für Uhrzeit und Datum erstellen
     zeit_datum_frame = ttk.LabelFrame(haupt_frame, text="Zeit & Datum", padding="10")
-    zeit_datum_frame.grid(row=0, column=2, padx=10, pady=10, sticky=(tk.N))
+    zeit_datum_frame.grid(row=0, column=2, padx=10, pady=10, sticky=(tk.NW))
 
     # Label für die aktuelle Uhrzeit im neuen Frame erstellen
     uhrzeit_label = ttk.Label(zeit_datum_frame, font=("Helvetica", 16))
@@ -143,6 +143,8 @@ def erstelle_fenster():
         uhrzeit_label.config(text=f"Aktuelle Uhrzeit: {simulierte_zeit.strftime('%H:%M:%S')}")
         # Aktualisierung des Datums
         datum_label.config(text=f"Aktuelles Datum: {simulierte_zeit.strftime('%Y-%m-%d')}")
+
+        sternzeichen_label.config(text=f"Aktuelles Sternzeichen: {sternzeichen()}")
         
         rotate_image()
         zeichne_zifferblatt()
@@ -302,6 +304,74 @@ def erstelle_fenster():
         rotated_pil_img = pil_img.rotate(-x)
         #save rotated image as in global var
         zodiac_img = ImageTk.PhotoImage(rotated_pil_img)
+        # Jeder Stunde entspricht 15 Grad
+        grad_pro_stunde = 15
+
+        # Die Bezugspunkte setzen: 6 Uhr entspricht 0 Grad
+        stunden_verschiebung = (x % 360) / grad_pro_stunde
+
+        # Berechne die Uhrzeit in Stunden
+        stunde = stunden_verschiebung
+
+        # Korrigiere die Uhrzeit, wenn sie über 24 hinausgeht
+        if stunde >= 24:
+            stunde -= 24
+
+        # Konvertiere die Stunden zu einer datetime-Zeit
+        uhrzeit = datetime.strptime(f"{int(stunde):02}:{int((stunde - int(stunde)) * 60):02}", "%H:%M").time()
+        sternzeit_label.config(text=f"Aktueller Stand Sternzeiger: {uhrzeit}")
+
+
+    # Sternzeichen anzeigen
+    sternzeichen_frame = ttk.LabelFrame(haupt_frame, text="Sternzeichen", padding="10")
+    sternzeichen_frame.grid(row=1, column=2, padx=10, pady=10, sticky=(tk.W))
+
+    sternzeichen_label = ttk.Label(sternzeichen_frame, text="")
+    sternzeichen_label.grid()
+
+    #Sternzeit anzeigen
+    sternzeit_frame = ttk.LabelFrame(haupt_frame, text="Sternzeiger in Normale Zeit", padding="10")
+    sternzeit_frame.grid(row=2, column=2, padx=10, pady=10, sticky=(tk.W))
+
+    sternzeit_label = ttk.Label(sternzeit_frame, text="")
+    sternzeit_label.grid()
+
+    def sternzeichen():
+        # Standardwert für astro_sign
+        astro_sign = "Unbekannt"
+
+        # Bestimme das Sternzeichen basierend auf dem Tag und Monat
+        month = simulierte_zeit.month
+        day = simulierte_zeit.day
+
+        if month == 12:  # Dezember
+            astro_sign = 'Schütze' if day < 22 else 'Steinbock'
+        elif month == 1:  # Januar
+            astro_sign = 'Steinbock' if day < 20 else 'Wassermann'
+        elif month == 2:  # Februar
+            astro_sign = 'Wassermann' if day < 19 else 'Fische'
+        elif month == 3:  # März
+            astro_sign = 'Fische' if day < 21 else 'Widder'
+        elif month == 4:  # April
+            astro_sign = 'Widder' if day < 20 else 'Stier'
+        elif month == 5:  # Mai
+            astro_sign = 'Stier' if day < 21 else 'Zwillinge'
+        elif month == 6:  # Juni
+            astro_sign = 'Zwillinge' if day < 21 else 'Krebs'
+        elif month == 7:  # Juli
+            astro_sign = 'Krebs' if day < 23 else 'Löwe'
+        elif month == 8:  # August
+            astro_sign = 'Löwe' if day < 23 else 'Jungfrau'
+        elif month == 9:  # September
+            astro_sign = 'Jungfrau' if day < 23 else 'Waage'
+        elif month == 10:  # Oktober
+            astro_sign = 'Waage' if day < 23 else 'Skorpion'
+        elif month == 11:  # November
+            astro_sign = 'Skorpion' if day < 22 else 'Schütze'
+
+        return astro_sign
+
+
         
     #Hier endet Johannes's Teil
 
