@@ -178,22 +178,24 @@ def erstelle_fenster():
 
     # Hier beginnt Daniels Teil
     
+        #Implementierung der Mitteleuropaeische-Zeit
+        
         #Aktuelle Uhrzeit
         stunden = simulierte_zeit.hour % 24
         minuten = simulierte_zeit.minute
         
         # Winkel der Zeiger (360 Grad / 24 = 15 Grad)
         angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
-        winkel_radians = math.radians(angle_stunden) + math.pi
+        winkel_radians = math.radians(angle_stunden) + math.pi # Rülpsen des Zeigers zwischen Mitternacht und Mittag
 
         # Den Stundenzeiger für die Mitteleuropaische Zeit zeichnen
-        x, y = ZeigerRechnen(220, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
+        x, y = ZeigerRechnen(220, angle_stunden)  #Koordinaten für die Spitze der Nadel
         if highlight_mezzeiger.get():
             canvas.create_line(350, 350, x, y, width=7, fill='green', tags="Nadel")
         else:
             canvas.create_line(350, 350, x, y, width=5, fill="white")
         
-        # Liste mit den Punkten, um den Dreieck zu zeichnen (handgeformtes Polygon)
+        # Liste mit den Punkten, um den Dreieck zu zeichnen
         x_h, y_h = ZeigerRechnen(190, angle_stunden)
         gold_hand = [
             x, y,
