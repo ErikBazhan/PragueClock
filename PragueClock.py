@@ -1,3 +1,19 @@
+"""
+##############################################################################
+# Projektname    : Graphische Ausgabe und UI-Elemente in Python
+# Themas-Beschreibung   : Realisierung der Ptager rathausUhr
+# Moderator      : Erik Bazhan
+# Entwickler     :
+#                 - Daniel Kameni
+#                 - XXXX
+#                 - XXXX
+#                 - XXXX
+# Jahr           : Wintersemester 2024
+##############################################################################
+"""
+
+# Online Python compiler (interpreter) to run Python online.
+# Write Python 3 code in this online editor and run it.
 import tkinter as tk
 from tkinter import ttk
 from ttkthemes import ThemedTk
@@ -104,7 +120,7 @@ def erstelle_fenster():
     canvas.grid(row=0, column=0, padx=10, pady=10)
 
     # Hintergrundbild laden und anpassen -Erik
-    hintergrund_image = Image.open("Uhr_Backround_700x700.jpg")
+    hintergrund_image = Image.open("Pictures/Uhr_Backround_700x700.jpg")
     hintergrund_image = hintergrund_image.resize((700, 700), Image.LANCZOS)
     hintergrund_tk = ImageTk.PhotoImage(hintergrund_image)
 
@@ -218,7 +234,7 @@ def erstelle_fenster():
         monate_label.grid(row=0, column=2, padx=10, pady=10)
         
         # Sonnenbild laden
-        sonnen_image = Image.open("Sonne.png").resize((60, 60), Image.LANCZOS)
+        sonnen_image = Image.open("Pictures/Sonne.png").resize((60, 60), Image.LANCZOS)
         sonnen_image_tk = ImageTk.PhotoImage(sonnen_image)
 
         # Speichere die Bildreferenz, damit sie nicht gelöscht wird
@@ -330,7 +346,7 @@ def erstelle_fenster():
     def zeichne_boem_h_ziffernblatt(aktuelle_boehmische_h):
 
         #Hintergrundboem_h_ziffernblatt_bild öffnen
-        boem_h_ziffernblatt_bild = Image.open("boem_h_ziffernblatt_700x700.png")  # Pfad zum boem_h_ziffernblatt_Bild
+        boem_h_ziffernblatt_bild = Image.open("Pictures/boem_h_ziffernblatt_700x700.png")  # Pfad zum boem_h_ziffernblatt_Bild
 
         #Anpassung der boem_h_ziffernblatt_Bildgröße
         boem_h_ziffernblatt_bild = boem_h_ziffernblatt_bild.resize((565, 565), Image.Resampling.LANCZOS)
@@ -371,7 +387,7 @@ def erstelle_fenster():
 
     # Hier beginnt Johannes's Teil
     #inital load image
-    pil_img = Image.open("zodiac.png")
+    pil_img = Image.open("Pictures/zodiac.png")
     #scale down image
     pil_img.thumbnail([500, 500], Resampling.LANCZOS, )
     
