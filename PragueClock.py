@@ -1,5 +1,3 @@
-# Online Python compiler (interpreter) to run Python online.
-# Write Python 3 code in this online editor and run it.
 import tkinter as tk
 from tkinter import ttk
 from ttkthemes import ThemedTk
@@ -8,55 +6,53 @@ import math
 from PIL import Image, ImageTk
 import datetime as dt
 from PIL.Image import Resampling
-
 from astral import LocationInfo              # Für Sonnenuntergangszeit -> Berechnung der boemischen h -Dominick
 from astral.sun import sun                   # "
 import pytz                                  # astral liefert datetime-objekte mit Zeitzone, wird für interne Rechnungen der boemischen h benoetigt -Dominick
 
-# Funktion zur Erstellung des Hauptfensters
+# Funktion zur Erstellung des Hauptfensters -Erik
 def erstelle_fenster():
-    # Hauptfenster erstellen mit Yaru-Theme
+    # Hauptfenster erstellen mit Yaru-Theme -Erik
     root = ThemedTk(theme="yaru")  
-    root.title("Prager Uhr Simulation")  # Fenstertitel setzen
-    root.geometry("1280x800")  # Fenstergröße setzen
+    root.title("Prager Uhr Simulation")  # Fenstertitel setzen -Erik
+    root.geometry("1280x800")  # Fenstergröße setzen -Erik
 
-    # Frame für die gesamte Anwendung
+    # Frame für die gesamte Anwendung -Erik
     haupt_frame = ttk.Frame(root, padding="10")
     haupt_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
-    # Ein eingerahmter Bereich für die Bedienelemente links
+    # Ein eingerahmter Bereich für die Bedienelemente links -Erik
     elemente_frame = ttk.LabelFrame(haupt_frame, text="Bedienelemente", padding="10")
     elemente_frame.grid(row=0, column=0, padx=10, pady=10, sticky=(tk.N))
 
-    # Label-Widget Beispiel
+    # Label-Widget Willkommen -Erik
     label = ttk.Label(elemente_frame, text="Willkommen zur Prager Uhr Simulation!")
     label.grid(row=0, column=0, padx=5, pady=5)
 
-    # Combobox (Dropdown-Menü) für Stunden und Minuten erstellen
+    # Combobox (Dropdown-Menü) für Stunden und Minuten erstellen -Erik
     auswahl = tk.StringVar()
     optionen = ["Stunden", "Minuten", "MittelEuropaischeZeit", "BoehmischeZeit"] 
-
     dropdown = ttk.Combobox(elemente_frame, textvariable=auswahl, values=optionen)
     dropdown.grid(row=1, column=0, padx=5, pady=5)
     dropdown.set("Wähle aus")
 
-    # Label für die Ausgabe der Uhrzeit hinzufügen
+    # Label für die Ausgabe der Uhrzeit hinzufügen -Erik
     zeit_label = ttk.Label(elemente_frame, text="")
     zeit_label.grid(row=3, column=0, padx=5, pady=5)
 
-    # Variablen zum Hervorheben der Zeiger
+    # Variablen zum Hervorheben der Zeiger -Erik
     highlight_stundenzeiger = tk.BooleanVar(value=False)
     highlight_minutenzeiger = tk.BooleanVar(value=False)
     highlight_mezzeiger = tk.BooleanVar(value=False)
 
-    # Funktion zur Anzeige der Auswahl
+    # Funktion zur Anzeige der Auswahl -Erik
     def auswahl_anzeigen():
         # Alle Zeiger zurücksetzen
         highlight_stundenzeiger.set(False)
         highlight_minutenzeiger.set(False)
         highlight_mezzeiger.set(False)
 
-        if auswahl.get() == "Stunden":
+        if auswahl.get() == "Stunden": 
             stunde = simulierte_zeit.hour
             zeit_label.config(text=f"Aktuelle Stunde: {stunde}")
             highlight_stundenzeiger.set(True)
@@ -77,81 +73,83 @@ def erstelle_fenster():
         else:
             zeit_label.config(text="Bitte eine Option auswählen")
 
-    # Button hinzufügen, um die Auswahl zu bestätigen
+    # Button hinzufügen, um die Auswahl zu bestätigen -Erik
     bestätigungs_button = ttk.Button(elemente_frame, text="Bestätigen", command=auswahl_anzeigen)
     bestätigungs_button.grid(row=2, column=0, padx=5, pady=5)
 
-    # Button, um zur aktuellen Uhrzeit zurückzukehren
+    # Funktion, um zur aktuellen Uhrzeit zurückzukehren -Erik
     def setze_aktuelle_zeit():
         nonlocal simulierte_zeit
-        simulierte_zeit = datetime.now()  # Setzt die simulierte Zeit zurück auf die aktuelle Zeit
+        simulierte_zeit = datetime.now()
 
-    def beschleunigung_zuruecksetzen():
+    # Funktion, um Beschleunigungen zurückzusetzen -Erik
+    def beschleunigung_zuruecksetzen(): 
         uhrzeit_slider.set(1)  # Setzt die Geschwindigkeit zurück auf 1x
         datum_slider.set(0)  # Setzt die Geschwindigkeit zurück auf 0x
 
-    # Beschleunigung zurücksetzen Button
+    # Beschleunigung zurücksetzen Button -Erik
     beschl_zurueck_button = ttk.Button(elemente_frame, text="Beschleunigung zurücksetzen", command=beschleunigung_zuruecksetzen)
     beschl_zurueck_button.grid(row=4, column=0, padx=5, pady=5)
 
-    # Datum und Uhrzeit zurücksetzen Button
+    # Datum und Uhrzeit zurücksetzen Button -Erik
     aktuelle_zeit_button = ttk.Button(elemente_frame, text="Datum und Uhrzeit zurücksetzen", command=setze_aktuelle_zeit)
     aktuelle_zeit_button.grid(row=8, column=0, padx=5, pady=5)
 
-    # Ein eingerahmter Bereich für die Uhrzeitanzeige und Geschwindigkeitseinstellungen
+    # Ein eingerahmter Bereich für die Uhrzeitanzeige und Geschwindigkeitseinstellungen -Erik
     uhr_frame = ttk.LabelFrame(haupt_frame, text="Uhrzeitanzeige", padding="10")
     uhr_frame.grid(row=0, column=1, padx=10, pady=10, sticky=(tk.N))
 
-    # Canvas für das analoge Zifferblatt (Größe 700x700)
+    # Canvas für das analoge Zifferblatt (Größe 700x700) -Erik
     canvas = tk.Canvas(uhr_frame, width=700, height=700, bg="white")
     canvas.grid(row=0, column=0, padx=10, pady=10)
 
-    # Hintergrundbild laden und anpassen
+    # Hintergrundbild laden und anpassen -Erik
     hintergrund_image = Image.open("Uhr_Backround_700x700.jpg")
     hintergrund_image = hintergrund_image.resize((700, 700), Image.LANCZOS)
     hintergrund_tk = ImageTk.PhotoImage(hintergrund_image)
 
-    # Frame für Uhrzeit und Datum erstellen
+    # Frame für Uhrzeit und Datum erstellen -Erik
     zeit_datum_frame = ttk.LabelFrame(haupt_frame, text="Zeit & Datum", padding="10")
     zeit_datum_frame.grid(row=0, column=2, padx=10, pady=10, sticky=(tk.N))
 
-    # Label für die aktuelle Uhrzeit im neuen Frame erstellen
+    # Label für die aktuelle Uhrzeit im neuen Frame erstellen -Erik
     uhrzeit_label = ttk.Label(zeit_datum_frame, font=("Helvetica", 16))
     uhrzeit_label.grid(row=0, column=0, padx=10, pady=5)  # Erste Zeile, Spalte 0
 
-    # Label für das aktuelle Datum im neuen Frame erstellen
+    # Label für das aktuelle Datum im neuen Frame erstellen -Erik
     datum_label = ttk.Label(zeit_datum_frame, font=("Helvetica", 16))
     datum_label.grid(row=1, column=0, padx=10, pady=5)  # Zweite Zeile, Spalte 0
 
-    # Variable zur Simulation der Zeit
+    # Variable zur Simulation der Zeit -Erik
     simulierte_zeit = datetime.now()
 
 
-    # Slidebar für Geschwindigkeitsanpassung erstellen
+    # Slidebar für Geschwindigkeitsanpassung erstellen -Erik
     uhrzeit_slider = tk.Scale(elemente_frame, from_=-1000, to=1000, orient=tk.HORIZONTAL, length=200, label="Uhrzeit beschleunigen")
     uhrzeit_slider.grid(row=10, column=0, padx=5, pady=10)
     uhrzeit_slider.set(1)
 
-    # Slidebar für Geschwindigkeitsanpassung der Tage erstellen
+    # Slidebar für Geschwindigkeitsanpassung der Tage erstellen -Erik
     datum_slider = tk.Scale(elemente_frame, from_=-365, to=365, orient=tk.HORIZONTAL, length=200, label="Tage beschleunigen")
     datum_slider.grid(row=11, column=0, padx=5, pady=10)
     datum_slider.set(0)
 
-    # Funktion zur Aktualisierung der Uhrzeit
+    # Funktion zur Aktualisierung der Uhrzeit -Erik
     def uhrzeit_aktualisieren():
         nonlocal simulierte_zeit
 
-        # Simulation der Uhrzeit
+        # Simulation der Uhrzeit -Erik
         geschwindigkeit = uhrzeit_slider.get()
         simulierte_zeit += timedelta(seconds=1 * geschwindigkeit)
         
-        # Simulation des Datums
+        # Simulation des Datums -Erik
         tage_geschwindigkeit = datum_slider.get()
         simulierte_zeit += timedelta(days=1 * tage_geschwindigkeit)
 
-        # Aktualisierung der Uhrzeit
+        # Aktualisierung der Uhrzeit -Erik
         uhrzeit_label.config(text=f"Aktuelle Uhrzeit: {simulierte_zeit.strftime('%H:%M:%S')}")
-        # Aktualisierung des Datums
+
+        # Aktualisierung des Datums -Erik
         datum_label.config(text=f"Aktuelles Datum: {simulierte_zeit.strftime('%Y-%m-%d')}")
         
         rotate_image()
@@ -160,17 +158,19 @@ def erstelle_fenster():
 
         root.after(1000, uhrzeit_aktualisieren)
 
-    # Funktion zum Zeichnen des Zifferblatts
+    # Funktion zum Zeichnen des Zifferblatts -Erik
     def zeichne_zifferblatt():
         canvas.delete("all")
         canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW)
         canvas.create_image(100, 100, image=zodiac_img, anchor=tk.NW)            
 
+        # Zeichne Stundenzeiger -Erik
         stunden_winkel = math.radians((simulierte_zeit.hour % 12 + simulierte_zeit.minute / 60) * 30)
         stunden_x = 350 + 200 * math.sin(stunden_winkel)
         stunden_y = 350 - 200 * math.cos(stunden_winkel)
         canvas.create_line(350, 350, stunden_x, stunden_y, width=4, fill="white")
 
+        # Zeichne Minutenzeiger -Erik
         minuten_winkel = math.radians(simulierte_zeit.minute * 6)
         minuten_x = 350 + 250 * math.sin(minuten_winkel)
         minuten_y = 350 - 250 * math.cos(minuten_winkel)
@@ -396,12 +396,12 @@ def erstelle_fenster():
     uhrzeit_aktualisieren()
     return root
 
-# Hauptfunktion, die das Fenster erstellt und die Tkinter-Schleife startet
+# Hauptfunktion, die das Fenster erstellt und die Tkinter-Schleife startet -Erik
 def main():
     root = erstelle_fenster()
     root.mainloop()
 
-# Entry-Point der Anwendung
+# Entry-Point der Anwendung -Erik
 if __name__ == "__main__":
     main()
 
