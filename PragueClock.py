@@ -277,19 +277,19 @@ def erstelle_fenster():
             if phase_day == 0:
                 phase_name = "Neumond"
             elif 1 <= phase_day < 7:
-                phase_name = "Zunehmende Sichel"
+                phase_name = "Zunehmender Sichelmond"
             elif phase_day == 7:
                 phase_name = "Erstes Viertel"
             elif 8 <= phase_day < 14:
-                phase_name = "Zunehmender Mond"
+                phase_name = "Zunehmender Dreiviertelmond"
             elif phase_day == 14:
                 phase_name = "Vollmond"
             elif 15 <= phase_day < 21:
-                phase_name = "Abnehmender Mond"
+                phase_name = "Abnehmender Dreiviertelmond"
             elif phase_day == 21:
                 phase_name = "Letztes Viertel"
             else:
-                phase_name = "Abnehmende Sichel"
+                phase_name = "Abnehmender Sichelmond"
 
             return phase_name, phase_day
 
