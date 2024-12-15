@@ -1,3 +1,19 @@
+"""
+##############################################################################
+# Projektname    : Graphische Ausgabe und UI-Elemente in Python
+# Themas-Beschreibung   : Realisierung der Ptager rathausUhr
+# Moderator      : Erik Bazhan
+# Entwickler     :
+#                 - Daniel Kameni
+#                 - XXXX
+#                 - XXXX
+#                 - XXXX
+# Jahr           : Wintersemester 2024
+##############################################################################
+"""
+
+# Online Python compiler (interpreter) to run Python online.
+# Write Python 3 code in this online editor and run it.
 import tkinter as tk
 from tkinter import ttk
 from ttkthemes import ThemedTk
@@ -104,7 +120,7 @@ def erstelle_fenster():
     canvas.grid(row=0, column=0, padx=10, pady=10)
 
     # Hintergrundbild laden und anpassen -Erik
-    hintergrund_image = Image.open("Uhr_Backround_700x700.jpg")
+    hintergrund_image = Image.open("Pictures/Uhr_Backround_700x700.jpg")
     hintergrund_image = hintergrund_image.resize((700, 700), Image.LANCZOS)
     hintergrund_tk = ImageTk.PhotoImage(hintergrund_image)
 
@@ -178,22 +194,24 @@ def erstelle_fenster():
 
     # Hier beginnt Daniels Teil
     
+        #Implementierung der Mitteleuropaeische-Zeit
+        
         #Aktuelle Uhrzeit
         stunden = simulierte_zeit.hour % 24
         minuten = simulierte_zeit.minute
         
         # Winkel der Zeiger (360 Grad / 24 = 15 Grad)
         angle_stunden = (stunden + minuten/60 ) * 15  # Winkel zwischen 2 aufeinanderfolgenden Stunden = 15 Grad
-        winkel_radians = math.radians(angle_stunden) + math.pi
+        winkel_radians = math.radians(angle_stunden) + math.pi # Rülpsen des Zeigers zwischen Mitternacht und Mittag
 
         # Den Stundenzeiger für die Mitteleuropaische Zeit zeichnen
-        x, y = ZeigerRechnen(220, angle_stunden)  #Koordinaten für die Spitze des Dreiecks
+        x, y = ZeigerRechnen(220, angle_stunden)  #Koordinaten für die Spitze der Nadel
         if highlight_mezzeiger.get():
             canvas.create_line(350, 350, x, y, width=7, fill='green', tags="Nadel")
         else:
             canvas.create_line(350, 350, x, y, width=5, fill="white")
         
-        # Liste mit den Punkten, um den Dreieck zu zeichnen (handgeformtes Polygon)
+        # Liste mit den Punkten, um den Dreieck zu zeichnen
         x_h, y_h = ZeigerRechnen(190, angle_stunden)
         gold_hand = [
             x, y,
@@ -216,7 +234,7 @@ def erstelle_fenster():
         monate_label.grid(row=0, column=2, padx=10, pady=10)
         
         # Sonnenbild laden
-        sonnen_image = Image.open("Sonne.png").resize((60, 60), Image.LANCZOS)
+        sonnen_image = Image.open("Pictures/Sonne.png").resize((60, 60), Image.LANCZOS)
         sonnen_image_tk = ImageTk.PhotoImage(sonnen_image)
 
         # Speichere die Bildreferenz, damit sie nicht gelöscht wird
@@ -328,7 +346,7 @@ def erstelle_fenster():
     def zeichne_boem_h_ziffernblatt(aktuelle_boehmische_h):
 
         #Hintergrundboem_h_ziffernblatt_bild öffnen
-        boem_h_ziffernblatt_bild = Image.open("boem_h_ziffernblatt_700x700.png")  # Pfad zum boem_h_ziffernblatt_Bild
+        boem_h_ziffernblatt_bild = Image.open("Pictures/boem_h_ziffernblatt_700x700.png")  # Pfad zum boem_h_ziffernblatt_Bild
 
         #Anpassung der boem_h_ziffernblatt_Bildgröße
         boem_h_ziffernblatt_bild = boem_h_ziffernblatt_bild.resize((565, 565), Image.Resampling.LANCZOS)
@@ -369,7 +387,7 @@ def erstelle_fenster():
 
     # Hier beginnt Johannes's Teil
     #inital load image
-    pil_img = Image.open("zodiac.png")
+    pil_img = Image.open("Pictures/zodiac.png")
     #scale down image
     pil_img.thumbnail([500, 500], Resampling.LANCZOS, )
     
