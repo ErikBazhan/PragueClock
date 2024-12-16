@@ -5,7 +5,7 @@
 # Moderator      : Erik Bazhan
 # Entwickler     :
 #                 - Daniel Kameni
-#                 - XXXX
+#                 - Dominick Iser
 #                 - XXXX
 #                 - XXXX
 # Jahr           : Wintersemester 2024
