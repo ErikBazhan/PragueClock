@@ -1,7 +1,7 @@
 """
 ##############################################################################
 # Projektname    : Graphische Ausgabe und UI-Elemente in Python
-# Themas-Beschreibung   : Realisierung der Ptager rathausUhr
+# Themas-Beschreibung   : Realisierung der Prager RathausUhr
 # Moderator      : Erik Bazhan
 # Entwickler     :
 #                 - Daniel Kameni
