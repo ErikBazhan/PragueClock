@@ -7,7 +7,7 @@
 #                 - Daniel Kameni
 #                 - Dominick Iser
 #                 - Reine Yamgoue
-#                 - XXXX
+#                 - Johannes Brückner
 # Jahr           : Wintersemester 2024
 ##############################################################################
 """
@@ -174,7 +174,7 @@ def erstelle_fenster():
         datum_label.config(text=f"Aktuelles Datum: {simulierte_zeit.strftime('%Y-%m-%d')}")
 
         sternzeichen_label.config(text=f"Aktuelles Sternzeichen: {sternzeichen()}")
-        
+        #Bild wird Rotiert -Johannes
         rotate_image()
         zeichne_zifferblatt()
         zeichne_boem_h_ziffernblatt(berechne_aktuelle_boehm_h(simulierte_zeit)) #Boehmische Stunden -Dominick
@@ -185,6 +185,7 @@ def erstelle_fenster():
     def zeichne_zifferblatt():
         canvas.delete("all")
         canvas.create_image(0, 0, image=hintergrund_tk, anchor=tk.NW)
+        #Zeichne Zodiac -Johannes
         canvas.create_image(100, 100, image=zodiac_img, anchor=tk.NW)            
 
         # Zeichne Stundenzeiger -Erik
@@ -474,27 +475,29 @@ def erstelle_fenster():
 
 
     # Hier beginnt Johannes's Teil
-    #inital load image
+    #Bild in Python laden
     pil_img = Image.open("Pictures/zodiac.png")
-    #scale down image
+    #Bild wird verkleinert
     pil_img.thumbnail([500, 500], Resampling.LANCZOS, )
     
-    #def of rotating image
+    #def von Rotiere das Bild
     def rotate_image():
-        #calculating time
+        #Berechne Zeit
         ref_startime = dt.datetime(2024,3,21,00,00)
         vergangene_zeit = simulierte_zeit - ref_startime
         vergangene_zeit_s = vergangene_zeit.total_seconds()
-        #calculating revolutions since ref. point
+        #Berechne vergangene Umdrehungen
         revolutions = vergangene_zeit_s / 86164.09
-        #calculating degrees
+        #Berechne Winkel x
         x = 360*(revolutions - int(revolutions))
         #globale Variable tk_img
         global zodiac_img
-        #rotate image pil_img to x degrees, minus for clockwise
+        #rotiere Bild um Winkel x in Uhrzeigersinn
         rotated_pil_img = pil_img.rotate(-x)
-        #save rotated image as in global var
+        #speichere rotieretes Bild in globaler Variable
         zodiac_img = ImageTk.PhotoImage(rotated_pil_img)
+        #Debbugmethode
+        
         # Jeder Stunde entspricht 15 Grad
         grad_pro_stunde = 15
 
