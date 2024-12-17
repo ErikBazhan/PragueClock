@@ -6,7 +6,7 @@
 # Entwickler     :
 #                 - Daniel Kameni
 #                 - Dominick Iser
-#                 - XXXX
+#                 - Reine Yamgoue
 #                 - XXXX
 # Jahr           : Wintersemester 2024
 ##############################################################################
@@ -287,6 +287,85 @@ def erstelle_fenster():
         x_image, y_image = ZeigerRechnen(sonne_laenge, angle_stunden)
         canvas.create_image(x_image, y_image, image=sonnen_image_tk, anchor=tk.CENTER)
 
+        # Mondphasen
+        def get_moon_phase():
+            # Berechnet und gibt die aktuelle Mondphase basierend auf dem heutigen Datum zurück.
+            phase_day = moon.phase(date=simulierte_zeit)
+
+            # Bestimmung der Phase, in der wir uns an diesem bestimmten Tag befinden.
+            if phase_day == 0:
+                phase_name = "Neumond"
+            elif 1 <= phase_day < 7:
+                phase_name = "Zunehmender Sichelmond"
+            elif phase_day == 7:
+                phase_name = "Erstes Viertel"
+            elif 8 <= phase_day < 14:
+                phase_name = "Zunehmender Dreiviertelmond"
+            elif phase_day == 14:
+                phase_name = "Vollmond"
+            elif 15 <= phase_day < 21:
+                phase_name = "Abnehmender Dreiviertelmond"
+            elif phase_day == 21:
+                phase_name = "Letztes Viertel"
+            else:
+                phase_name = "Abnehmender Sichelmond"
+
+            return phase_name, phase_day
+
+        def update_phase():
+            # Aktualisiert das Fenster mit der aktuellen Mondphase.
+            phase_name, phase_day = get_moon_phase()
+            label_phase.config(text=f"Aktuelle Phase: {phase_name}")
+            label_day.config(text=f"Tag im Mondzyklus: {phase_day:.1f}")  # Der Mond hat ein Zyklus von 29.5 Tage jede Monat
+ 
+        # Frame für Mondphase und Tag im Mondzyklus anzeigen. Der Mond hat ein zyklus von 29.5 Tage.
+        title_frame = ttk.LabelFrame(monate_frame, text="Aktuelle Mondphase",  padding="10") 
+        title_frame.grid(row=1, column=2, padx=10, pady=10)
+        # Mondphase anzeige Fläche
+        label_phase = ttk.Label(monate_frame, text="")
+        label_phase.grid(row=2, column=2, padx=10, pady=10)
+        # Tagszyklus anzeige. Welcher Tag ist heute von den 29,5 Tagen des Mondzyklus. 
+        label_day = ttk.Label(monate_frame, text="")
+        label_day.grid(row=3, column=2, padx=10, pady=10)
+
+        # Phase Initialisierung
+        update_phase()
+        #Ermittelung den geografischen Standort des Computers wo man den code laufen lässt basierend auf der IP-Adresse.
+        def get_location():
+            try:
+                # Standortinformationen von einem IP-Service abrufen
+                response = requests.get('https://ipinfo.io/')
+                data = response.json()
+
+                # Koordinaten und Stadtname extrahieren
+                loc = data.get("loc", "0,0").split(",")
+                city = data.get("city", "Unbekannt")
+                country = data.get("country", "Unbekannt")
+                Breitengrad, Längengrad  = float(loc[0]), float(loc[1])
+
+                return city, country, Breitengrad, Längengrad 
+            except Exception as e:
+                print(f"Fehler beim Abrufen des Standorts: {e}")
+                return "Unbekannt", "Unbekannt", 0.0, 0.0
+
+        # Standort des Computers ermitteln.Und damit kann man die Breitengrad und Längengrad  der Mond rechnen
+        city_name, country_name, BG, LG = get_location()
+
+        # Beobachterstandort basierend auf den ermittelten Koordinaten erstellen: BG: Breitengrad  , LG: Längengrad 
+        observer_location = LocationInfo(city_name, country_name, "UTC", BG, LG)
+
+        # Aktuelles Datum und Uhrzeit abrufen
+        now = simulierte_zeit
+
+        # Mondkoordinaten berechnen. Mondkoordinaten sind von der position der Beobachter abhängig.
+        moon_altitude = elevation(observer_location.observer, now) #Die funktion elevation berechnet die Höhe des Mondes über dem Horizont (in Grad).
+        moon_azimuth = azimuth(observer_location.observer, now) #gibt die Richtung des Mondes an (in Grad)
+        #Ausgabe der Standort parameters in der Terminal
+        print(f"Datum und Uhrzeit: {now}")
+        print(f"Ermittelter Standort: {city_name}, {country_name} (BG: {BG}, LG: {LG})") #Der Längengrad gibt die Position östlich oder westlich des ersten Mondmeridians an. Der Breitengrad gibt die Position nördlich oder südlich des Mondäquators an. 
+        print(f"Mondhöhe (Altitude): {moon_altitude:.2f}°")
+        print(f"Azimut des Mondes: {moon_azimuth:.2f}°")
+    
     #Ende Reine Teil
 
 
