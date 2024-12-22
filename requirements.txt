@@ -1,5 +1,4 @@
 astral==3.2
 Pillow==11.0.0
 pytz==2024.1
-tkinter==8.6
 ttkthemes==3.2.2
